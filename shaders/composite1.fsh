@@ -2,7 +2,7 @@
 
 varying vec2 TexCoords;
 
-uniform sampler2D colortex2; // base contour map
+uniform sampler2D colortex2; // base_contours
 uniform sampler2D colortex3; // UV displacement 1
 uniform sampler2D colortex4; // UV displacement 2
 uniform sampler2D colortex5; // UV displacement 3
@@ -45,6 +45,6 @@ void main() {
     float ca_3 = ct_2 * (1.0 - cs);
     float ct_3 = ct_2 - ub * ca_3 * contour_3;
 
-    /* DRAWBUFFERS:0 */
+    /* DRAWBUFFERS:9 */
     gl_FragData[0] = vec4(vec3(ct_3), 1.0);
 }

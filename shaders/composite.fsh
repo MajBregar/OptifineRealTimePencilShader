@@ -2,10 +2,8 @@
 
 varying vec2 TexCoords;
 
-// The color textures which we wrote to
-uniform sampler2D colortex0;
-uniform sampler2D colortex1;
-uniform sampler2D depthtex0;
+uniform sampler2D colortex1;    //block_normals
+uniform sampler2D depthtex0;    //depth texture
 
 uniform float viewWidth;
 uniform float viewHeight;
@@ -14,13 +12,15 @@ uniform float far;
 vec3 forward_facing_vector = vec3(0.0, 0.0, 1.0);
 
 float linearizeDepth(float z) {
-    float ndc = z * 2.0 - 1.0; // Convert [0, 1] to [-1, 1]
+    float ndc = z * 2.0 - 1.0;
     return (2.0 * near * far) / (far + near - ndc * (far - near));
 }
 
 void main() {
     vec2 texelSize = vec2(1.0 / viewWidth, 1.0 / viewHeight);
     
+    //CONTOUR DETECTION
+
     //normal based contour detection
     vec3 fragment_normal = texture2D(colortex1, TexCoords).rgb;
     vec3 n_left     = texture2D(colortex1, TexCoords + vec2(-texelSize.x, 0.0)).rgb;
