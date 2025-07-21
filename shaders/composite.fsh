@@ -50,6 +50,6 @@ void main() {
 
     float edge = (normal_response + depth_response) > 0.0 ? 0.0 : 1.0;
 
-    /* DRAWBUFFERS:2 */
+    /* RENDERTARGETS:2 */
     gl_FragData[0] = vec4(vec3(edge), 1.0);
 }

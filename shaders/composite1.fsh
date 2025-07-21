@@ -7,24 +7,42 @@ uniform sampler2D colortex3; // UV displacement 1
 uniform sampler2D colortex4; // UV displacement 2
 uniform sampler2D colortex5; // UV displacement 3
 
-const float max_offset_u = 3.5 / 2560.0;
-const float max_offset_v = 3.5 / 1440.0;
+uniform sampler2D depthtex0;
 
+uniform float viewWidth;
+uniform float viewHeight;
+uniform float near;
+uniform float far;
+vec3 forward_facing_vector = vec3(0.0, 0.0, 1.0);
+
+
+const float max_offset = 0.0013;
 const float ub = 0.7;
 const float cs = 0.5;
 
 vec2 decodeDisplacement(vec2 encoded) {
     return vec2(
-        (encoded.r - 0.5) * 2.0 * max_offset_u,
-        (encoded.g - 0.5) * 2.0 * max_offset_v
+        (encoded.r - 0.5) * 2.0 * max_offset,
+        (encoded.g - 0.5) * 2.0 * max_offset
     );
+}
+
+float linearizeDepth(float z) {
+    float ndc = z * 2.0 - 1.0;
+    return (2.0 * near * far) / (far + near - ndc * (far - near));
 }
 
 void main() {
     // Sample and decode each displacement map
-    vec2 disp1 = decodeDisplacement(texture2D(colortex3, TexCoords).rg);
-    vec2 disp2 = decodeDisplacement(texture2D(colortex4, TexCoords).rg);
-    vec2 disp3 = decodeDisplacement(texture2D(colortex5, TexCoords).rg);
+    float fragment_depth_raw = texture2D(depthtex0, TexCoords).r;
+    float fragment_depth = linearizeDepth(fragment_depth_raw);   
+    float depth_scale = 1.0 - clamp((fragment_depth - near) / (far - near), 0.0, 1.0);
+    depth_scale = depth_scale * depth_scale;
+
+
+    vec2 disp1 = decodeDisplacement(texture2D(colortex3, TexCoords).rg) * depth_scale;
+    vec2 disp2 = decodeDisplacement(texture2D(colortex4, TexCoords).rg) * depth_scale;
+    vec2 disp3 = decodeDisplacement(texture2D(colortex5, TexCoords).rg) * depth_scale;
 
     // Displaced UVs
     vec2 uv1 = clamp(TexCoords + disp1, 0.0, 1.0);
@@ -45,6 +63,6 @@ void main() {
     float ca_3 = ct_2 * (1.0 - cs);
     float ct_3 = ct_2 - ub * ca_3 * contour_3;
 
-    /* DRAWBUFFERS:9 */
+    /* RENDERTARGETS:9 */
     gl_FragData[0] = vec4(vec3(ct_3), 1.0);
 }

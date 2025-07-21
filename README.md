@@ -4,5 +4,9 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 
 ## todo
 - fix contour detection
-- in countour shaking make it invariant to screen size
-- in countour shaking make it invariant to player movement (if possible)
+- learn shadow map - make soft shadows
+- implement block light map
+- make tilable pencil shading textures
+- merge and shrink displacement maps
+- add tilable paper texture
+- make/find paper normal map
