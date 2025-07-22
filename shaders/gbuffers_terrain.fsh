@@ -9,21 +9,19 @@ varying vec3 WorldNormal;
 uniform sampler2D texture;
 
 vec2 computeUV(vec3 pos, vec3 normal) {
-    vec3 n = abs(normal);
-    vec2 uv;
+    vec3 blending = abs(normal);
+    blending = normalize(max(blending, 0.0001));
+    blending /= (blending.x + blending.y + blending.z);
 
-    if (n.x > n.y && n.x > n.z) {
-        // ±X face → use YZ plane
-        uv = pos.zy;
-    } else if (n.y > n.z) {
-        // ±Y face → use XZ plane
-        uv = pos.xz;
-    } else {
-        // ±Z face → use XY plane
-        uv = pos.xy;
-    }
+    vec2 uvX = pos.zy;
+    vec2 uvY = pos.xz;
+    vec2 uvZ = pos.xy;
 
-    return fract(uv);
+    return fract(
+        uvX * blending.x +
+        uvY * blending.y +
+        uvZ * blending.z
+    );
 }
 
 
@@ -31,7 +29,7 @@ void main(){
     vec4 albedo = texture2D(texture, TexCoords);
     vec2 blockUV = computeUV(WorldPos, WorldNormal);
 
-    /* RENDERTARGETS:0,1,10,11 */
+    /* RENDERTARGETS:0,1,2,3 */
     gl_FragData[0] = albedo;
     gl_FragData[1] = vec4(ViewNormal, 1.0);
     gl_FragData[2] = vec4(Lightmap, 0.0, 1.0);

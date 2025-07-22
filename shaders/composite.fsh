@@ -2,7 +2,7 @@
 
 varying vec2 TexCoords;
 
-uniform sampler2D colortex1;    //block_normals
+uniform sampler2D colortex1;    //block view normals
 uniform sampler2D depthtex0;    //depth texture
 
 uniform float viewWidth;
@@ -50,6 +50,6 @@ void main() {
 
     float edge = (normal_response + depth_response) > 0.0 ? 0.0 : 1.0;
 
-    /* RENDERTARGETS:2 */
+    /* RENDERTARGETS:7 */
     gl_FragData[0] = vec4(vec3(edge), 1.0);
 }

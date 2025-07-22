@@ -2,10 +2,8 @@
 
 varying vec2 TexCoords;
 
-uniform sampler2D colortex2; // base_contours
-uniform sampler2D colortex3; // UV displacement 1
-uniform sampler2D colortex4; // UV displacement 2
-uniform sampler2D colortex5; // UV displacement 3
+uniform sampler2D colortex7; // tmp - contains base contours
+uniform sampler2D colortex5; // UV displacement texture
 
 uniform sampler2D depthtex0;
 
@@ -16,7 +14,8 @@ uniform float far;
 vec3 forward_facing_vector = vec3(0.0, 0.0, 1.0);
 
 
-const float max_offset = 0.0013;
+const float displacement_map_layers = 3.0;
+const float max_offset = 0.0018;
 const float ub = 0.7;
 const float cs = 0.5;
 
@@ -40,9 +39,13 @@ void main() {
     depth_scale = depth_scale * depth_scale;
 
 
-    vec2 disp1 = decodeDisplacement(texture2D(colortex3, TexCoords).rg) * depth_scale;
-    vec2 disp2 = decodeDisplacement(texture2D(colortex4, TexCoords).rg) * depth_scale;
-    vec2 disp3 = decodeDisplacement(texture2D(colortex5, TexCoords).rg) * depth_scale;
+    vec2 dmap_uv1 = vec2(TexCoords.x / displacement_map_layers, TexCoords.y);
+    vec2 dmap_uv2 = dmap_uv1 + vec2(1.0 / displacement_map_layers, 0.0);
+    vec2 dmap_uv3 = dmap_uv1 + vec2(2.0 / displacement_map_layers, 0.0);
+
+    vec2 disp1 = decodeDisplacement(texture2D(colortex5, dmap_uv1).rg) * depth_scale;
+    vec2 disp2 = decodeDisplacement(texture2D(colortex5, dmap_uv2).rg) * depth_scale;
+    vec2 disp3 = decodeDisplacement(texture2D(colortex5, dmap_uv3).rg) * depth_scale;
 
     // Displaced UVs
     vec2 uv1 = clamp(TexCoords + disp1, 0.0, 1.0);
@@ -50,9 +53,9 @@ void main() {
     vec2 uv3 = clamp(TexCoords + disp3, 0.0, 1.0);
 
     // Sample contour texture at displaced locations
-    float contour_1 = 1.0 - texture2D(colortex2, uv1).r;
-    float contour_2 = 1.0 - texture2D(colortex2, uv2).r;
-    float contour_3 = 1.0 - texture2D(colortex2, uv3).r;
+    float contour_1 = 1.0 - texture2D(colortex7, uv1).r;
+    float contour_2 = 1.0 - texture2D(colortex7, uv2).r;
+    float contour_3 = 1.0 - texture2D(colortex7, uv3).r;
 
     float ca_1 = 1.0 * (1.0 - cs);
     float ct_1 = 1.0 - ub * ca_1 * contour_1;
@@ -63,6 +66,6 @@ void main() {
     float ca_3 = ct_2 * (1.0 - cs);
     float ct_3 = ct_2 - ub * ca_3 * contour_3;
 
-    /* RENDERTARGETS:9 */
+    /* RENDERTARGETS:4 */
     gl_FragData[0] = vec4(vec3(ct_3), 1.0);
 }
