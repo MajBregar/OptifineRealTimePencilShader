@@ -9,12 +9,12 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 - learn shadow map - make soft shadows
 
 ### QOL
-- light map interpolation of bands (possibly a new pass or light transitions between bands)
 - fix contour detection
 - make transparent blocks texture correctly
+- make intuitive options
+- if possible tie displacement map to world coordinates
 
-### RESONABLY DONE
+### RESONABLY DONE - maybe good? think about later
 - make tilable pencil shading textures
 
 ### HIGH PRIO
-- contours white against black textures

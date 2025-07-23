@@ -1,0 +1,25 @@
+option.CONTOUR_SHAKE_MAX_DISPLACEMENT=Max Displacement
+option.CONTOUR_SHAKE_MAX_DISPLACEMENT.comment=Max Displacement For Pencil Contour Shaking.
+
+option.CONTOUR_UB=Pencil Hardness
+option.CONTOUR_UB.comment=Pencil Hardness For Drawing Contours. Controls how much graphite gets transfered.
+
+option.CONTOUR_CS=Pencil Blackness
+option.CONTOUR_CS.comment=Pencil Blackness For Drawing Contour. Controls the base pencil blackness.
+
+option.CROSSHATCH_UB=Pencil Hardness
+option.CROSSHATCH_UB.comment=Pencil Hardness For Crosshatching. Controls how much graphite gets transfered.
+
+option.CROSSHATCH_UW=White Preservation
+option.CROSSHATCH_UW.comment=White Preservation When Crosshatching. Controls how well white patches get preserved.
+
+option.CROSSHATCH_WP_THRESHOLD=White Preservation Threshold
+option.CROSSHATCH_WP_THRESHOLD.comment=White Preservation Threshold When Crosshatching. Controls which pixels are white enough to preserve whiteness.
+
+option.CROSSHATCH_DIAGONAL_CH_THRESHOLD=Diagonal Threshold
+option.CROSSHATCH_DIAGONAL_CH_THRESHOLD.comment=Light level threshold to add diagonal crosshatching.
+
+option.CROSSHATCH_BLENDING_MULTIPLIER=Transition Blending Multiplier
+option.CROSSHATCH_BLENDING_MULTIPLIER.comment=Controls the light level blending of crosshatching textures.
+
+
