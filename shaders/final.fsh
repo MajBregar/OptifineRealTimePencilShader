@@ -5,6 +5,6 @@
 varying vec2 TexCoords;
 
 void main() {
-    vec3 c = texture2D(colortex8, TexCoords).rgb;
+    vec3 c = texture2D(colortex0, TexCoords).rgb;
     gl_FragColor = vec4(c, 1.0);
 }
