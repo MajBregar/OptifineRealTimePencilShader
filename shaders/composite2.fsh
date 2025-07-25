@@ -6,8 +6,6 @@ varying vec2 TexCoords;
 
 #define LIGHT_TEXTURE_LAYERS 128.0
 
-
-
 vec2 rotateUV90(vec2 uv) {
     uv -= 0.5;
     uv = vec2(-uv.y, uv.x);
@@ -60,47 +58,48 @@ float sample_pencil_shading(float light_level){
 }
 
 
-float blur_contour(vec2 uv) {
-    vec2 texelSize = vec2(1.0 / viewWidth, 1.0 / viewHeight);
-    float result = 0.0;
-    for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
-            vec2 offset = vec2(float(x), float(y)) * texelSize;
-            result += texture2D(colortex4, uv + offset).r;
-        }
-    }
-    return result / 9.0;
+
+
+
+
+float remap_sky_light_level(float raw_light){
+    return pow(raw_light, 4.0);
 }
 
+float remap_block_light_level(float raw_light){
+    return 1.1 * pow(raw_light, 2.2);
+}
 
 void main() {
-    float contour = blur_contour(TexCoords);
-    vec3 fragment_normal = get_view_space_normal(TexCoords);
+    float contour = texture2D(colortex4, TexCoords).r;
+
+    vec3 fragment_normal = texture2D(colortex11, TexCoords).rgb;
     float fragment_depth_raw = texture2D(depthtex0, TexCoords).r;
 
     //LIGHT CALCULATIONS
     float sun_light_level = max(dot(fragment_normal, normalize(sunPosition)), 0.0);
-    float shadow_level = get_shadow(TexCoords, fragment_depth_raw).r;
 
-    float light_block = pow(texture2D(colortex2, TexCoords).r, 5.2) * 2.0;
-    float light_sky = pow(texture2D(colortex2, TexCoords).g, 4.0);
-    float light_map_level = light_block + light_sky;
-    float raw_light_level = light_map_level;
+    float shadow = getSoftShadow(TexCoords, get_shadow_map_clip_pos(TexCoords, fragment_depth_raw)).r;
+
+    float light_block = texture2D(colortex2, TexCoords).r;
+    float light_sky = texture2D(colortex2, TexCoords).g;
+    float light_map_level = remap_sky_light_level(light_sky) + remap_block_light_level(light_block);
+
+    float final_light_level = light_map_level + sun_light_level * shadow + AMBIENT_LIGHT;
+
+    float shading_color = is_sky(TexCoords) ? 1.0 : sample_pencil_shading(final_light_level);
+    shading_color = blend_function(min(contour, shading_color), contour, CONTOUR_UB);
 
 
-    float final_light_level = raw_light_level + sun_light_level * shadow_level + AMBIENT_LIGHT; 
-    float light_level = quantize_light_level(final_light_level);
-
-    float out_color = 1.0;
-
-    if (!is_sky(TexCoords)) {
-        out_color = sample_pencil_shading(light_level);
-    }
-
-    out_color = min(out_color, contour);
-
+    vec2 raw_uv = texture2D(colortex3, TexCoords).rg;
+    vec3 default_block_color = texture2D(colortex0, TexCoords).rgb;
+    vec3 paper_texture_color = texture2D(colortex9, raw_uv).rgb;
+    float b = 0.7;
+    
+    vec3 texturing_color = b* paper_texture_color + (1.0 - b) * vec3(0.5, 0.3, 0.0);
+    vec3 paper = texturing_color * shading_color;
 
     /* RENDERTARGETS:0 */
-    gl_FragData[0] = vec4(out_color);
+    gl_FragData[0] = vec4(paper, 1.0);
 }
 

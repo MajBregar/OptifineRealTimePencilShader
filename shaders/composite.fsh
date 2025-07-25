@@ -4,42 +4,37 @@
 
 varying vec2 TexCoords;
 
+#define CONTOUR_DETECTION_THRESHOLD_NORMALS 0.9999
+#define CONTOUR_DETECTION_THRESHOLD_COPLANAR 0.0001
+
+float detect_contour_and_inflate(vec2 uv){
+    vec3 center_normal = texture2D(colortex1, uv).rgb;
+    vec3 center_position = texture2D(colortex10, uv).rgb;
+
+    for (int x = -CONTOUR_DETECTION_KERNEL_SIZE; x <= CONTOUR_DETECTION_KERNEL_SIZE; x++){
+        for (int y = -CONTOUR_DETECTION_KERNEL_SIZE; y <= CONTOUR_DETECTION_KERNEL_SIZE; y++){
+            if (x == 0 && y == 0) continue;
+
+            vec2 sample_uv = uv + vec2(x * texelSize.x, y * texelSize.y);
+            
+            vec3 neighbour_normal = texture2D(colortex1, sample_uv).rgb;
+            vec3 neighbour_position    = texture2D(colortex10, sample_uv).rgb;
+
+            float normal_similarity = dot(center_normal, neighbour_normal);
+            vec3 pos_diff_normal = normalize(neighbour_position - center_position);
+
+            float coplanarity = abs(dot(center_normal, pos_diff_normal));
+
+            if (normal_similarity < CONTOUR_DETECTION_THRESHOLD_NORMALS || coplanarity > CONTOUR_DETECTION_THRESHOLD_COPLANAR) return 0.0;
+        }
+    }
+    return 1.0;
+}
 
 void main() {
-    vec2 texelSize = vec2(1.0 / viewWidth, 1.0 / viewHeight);
     
-    //CONTOUR DETECTION
+    float edge = detect_contour_and_inflate(TexCoords);
 
-    //normal based contour detection
-    vec3 fragment_normal = get_view_space_normal(TexCoords);
-    vec3 n_left     = get_view_space_normal(TexCoords + vec2(-texelSize.x, 0.0));
-    vec3 n_right    = get_view_space_normal(TexCoords + vec2(texelSize.x, 0.0));
-    vec3 n_up       = get_view_space_normal(TexCoords + vec2(0.0, texelSize.y));
-    vec3 n_down     = get_view_space_normal(TexCoords + vec2(0.0, -texelSize.y));
-
-    float dx = length(fragment_normal - n_right) + length(fragment_normal - n_left);
-    float dy = length(fragment_normal - n_up) + length(fragment_normal - n_down);
-    float normal_response = (dx + dy) > 0.01 ? 1.0 : 0.0;
-
-    //depth based contour detection
-    float fragment_depth_raw = texture2D(depthtex0, TexCoords).r;
-    float fragment_depth = linearize_depth(fragment_depth_raw);
-    float dL = linearize_depth(texture2D(depthtex0, TexCoords + vec2(-texelSize.x, 0.0)).r);
-    float dR = linearize_depth(texture2D(depthtex0, TexCoords + vec2( texelSize.x, 0.0)).r);
-    float dU = linearize_depth(texture2D(depthtex0, TexCoords + vec2(0.0,  texelSize.y)).r);
-    float dD = linearize_depth(texture2D(depthtex0, TexCoords + vec2(0.0, -texelSize.y)).r);
-
-    float residual_x = abs(fragment_depth - 0.5 * (dL + dR));
-    float residual_y = abs(fragment_depth - 0.5 * (dU + dD));
-
-    float linearity_eps = 0.003;
-
-    float relative_residual = (residual_x + residual_y) / fragment_depth;
-    float depth_response = relative_residual > linearity_eps ? 1.0 : 0.0;
-
-    float edge = (normal_response + depth_response) > 0.0 ? 0.0 : 1.0;
-    
     /* RENDERTARGETS:7 */
     gl_FragData[0] = vec4(vec3(edge), 1.0);
-
 }

@@ -7,6 +7,12 @@ option.CONTOUR_UB.comment=Pencil Hardness For Drawing Contours. Controls how muc
 option.CONTOUR_CS=Pencil Blackness
 option.CONTOUR_CS.comment=Pencil Blackness For Drawing Contour. Controls the base pencil blackness.
 
+option.CONTOUR_DETECTION_KERNEL_SIZE=Contour Thickness
+option.CONTOUR_DETECTION_KERNEL_SIZE.comment=Controls thickness of contour strokes.
+
+option.CONTOUR_VIEW_DISTANCE=Contour View Distance
+option.CONTOUR_VIEW_DISTANCE.comment=Controls the contour view falloff.
+
 option.CROSSHATCH_UB=Pencil Hardness
 option.CROSSHATCH_UB.comment=Pencil Hardness For Crosshatching. Controls how much graphite gets transfered.
 
@@ -21,5 +27,17 @@ option.CROSSHATCH_DIAGONAL_CH_THRESHOLD.comment=Light level threshold to add dia
 
 option.CROSSHATCH_BLENDING_MULTIPLIER=Transition Blending Multiplier
 option.CROSSHATCH_BLENDING_MULTIPLIER.comment=Controls the light level blending of crosshatching textures.
+
+
+
+
+option.SHADOW_QUALITY=Shadow Quality
+option.SHADOW_QUALITY.comment=Controls the shadow sampling quality.
+
+option.SHADOW_SOFTNESS=Shadow Softness
+option.SHADOW_SOFTNESS.comment=Controls how blury the shadow is.
+
+option.AMBIENT_LIGHT=Ambient Light
+option.AMBIENT_LIGHT.comment=Baseline World Light Level.
 
 

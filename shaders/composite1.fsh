@@ -17,18 +17,16 @@ vec2 decodeDisplacement(vec2 encoded) {
 void main() {
     // Sample and decode each displacement map
     float fragment_depth_raw = texture2D(depthtex0, TexCoords).r;
-    float fragment_depth = linearize_depth(fragment_depth_raw);   
-    float depth_scale = 1.0 - clamp((fragment_depth - near) / (far - near), 0.0, 1.0);
-    depth_scale = depth_scale * depth_scale;
-
+    float view_depth_dropoff = 1.0 - linearize_to_view_dist(fragment_depth_raw);
+    view_depth_dropoff = pow(view_depth_dropoff, 1.4);
 
     vec2 dmap_uv1 = vec2(TexCoords.x / DISPLACEMENT_MAP_LAYER_COUNT, TexCoords.y);
     vec2 dmap_uv2 = dmap_uv1 + vec2(1.0 / DISPLACEMENT_MAP_LAYER_COUNT, 0.0);
     vec2 dmap_uv3 = dmap_uv1 + vec2(2.0 / DISPLACEMENT_MAP_LAYER_COUNT, 0.0);
 
-    vec2 disp1 = decodeDisplacement(texture2D(colortex5, dmap_uv1).rg) * depth_scale;
-    vec2 disp2 = decodeDisplacement(texture2D(colortex5, dmap_uv2).rg) * depth_scale;
-    vec2 disp3 = decodeDisplacement(texture2D(colortex5, dmap_uv3).rg) * depth_scale;
+    vec2 disp1 = decodeDisplacement(texture2D(colortex5, dmap_uv1).rg) * view_depth_dropoff;
+    vec2 disp2 = decodeDisplacement(texture2D(colortex5, dmap_uv2).rg) * view_depth_dropoff;
+    vec2 disp3 = decodeDisplacement(texture2D(colortex5, dmap_uv3).rg) * view_depth_dropoff;
 
     // Displaced UVs
     vec2 uv1 = clamp(TexCoords + disp1, 0.0, 1.0);
@@ -49,7 +47,7 @@ void main() {
     float ca_3 = ct_2 * (1.0 - CONTOUR_CS);
     float ct_3 = ct_2 - CONTOUR_UB * ca_3 * contour_3;
 
-    float final_color = ct_3;
+    float final_color = ct_3 + (1.0 - ct_3) * (1.0 - view_depth_dropoff);
 
     /* RENDERTARGETS:4 */
     gl_FragData[0] = vec4(vec3(final_color), 1.0);

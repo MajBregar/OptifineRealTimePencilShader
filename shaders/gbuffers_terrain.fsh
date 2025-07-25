@@ -8,6 +8,10 @@ varying vec2 Lightmap;
 varying vec3 ViewNormal;
 varying vec3 WorldPos;
 varying vec3 WorldNormal;
+varying vec3 ModelPos;
+varying vec3 ViewPos;
+
+varying vec4 Color;
 
 vec2 computeUV(vec3 pos, vec3 normal) {
     vec3 blending = abs(normal);
@@ -25,15 +29,15 @@ vec2 computeUV(vec3 pos, vec3 normal) {
     );
 }
 
-
 void main(){
-    vec4 albedo = texture2D(texture, TexCoords);
-    vec2 blockUV = computeUV(WorldPos, WorldNormal);
-    vec3 view_normal_encoded = ViewNormal * 0.5 + 0.5;
+    vec4 c = texture2D(texture, TexCoords) * Color;
+    vec2 blockUV = computeUV(ModelPos, WorldNormal);
 
-    /* RENDERTARGETS:0,1,2,3 */
-    gl_FragData[0] = albedo;
-    gl_FragData[1] = vec4(view_normal_encoded, 1.0);
+    /* RENDERTARGETS:0,1,2,3,10,11 */
+    gl_FragData[0] = c;
+    gl_FragData[1] = vec4(WorldNormal, 1.0);
     gl_FragData[2] = vec4(Lightmap, 0.0, 1.0);
     gl_FragData[3] = vec4(blockUV, 0.0, 1.0);
+    gl_FragData[4] = vec4(WorldPos, 1.0);
+    gl_FragData[5] = vec4(ViewNormal, 1.0);
 }

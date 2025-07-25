@@ -6,8 +6,9 @@ varying vec2 TexCoords;
 varying vec4 Color;
 
 void main(){
-    gl_Position    = ftransform();
-    gl_Position.xy = distort_position(gl_Position.xy);
-    TexCoords = gl_MultiTexCoord0.st;
+    gl_Position = ftransform();
+    gl_Position.xyz = distortShadowClipPos(gl_Position.xyz);
+    TexCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     Color = gl_Color;
 }
+
