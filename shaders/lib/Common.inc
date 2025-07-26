@@ -1,8 +1,9 @@
 
 /*
-const int colortex1Format = RGBA16F;
-const int colortex10Format = RGBA16F;
-const int colortex11Format = RGBA16F;
+const int colortex1Format = RGB32F;
+const int colortex10Format = RGB32F;
+const int colortex11Format = RGB32F;
+const int colortex8Format = RGBA16;
 */
 
 

@@ -13,6 +13,18 @@ option.CONTOUR_DETECTION_KERNEL_SIZE.comment=Controls thickness of contour strok
 option.CONTOUR_VIEW_DISTANCE=Contour View Distance
 option.CONTOUR_VIEW_DISTANCE.comment=Controls the contour view falloff.
 
+option.CONTOUR_DISPLACEMENT_FALLOFF=Displacement Falloff
+option.CONTOUR_DISPLACEMENT_FALLOFF.comment=Controls how fast displacement disappears with distance.
+
+option.CONTOUR_COLOR_FALLOFF=Color Falloff
+option.CONTOUR_COLOR_FALLOFF.comment=Controls how fast contour color disappears with distance.
+
+option.CONTOUR_THICKNESS_FALLOFF=Thickness Falloff
+option.CONTOUR_THICKNESS_FALLOFF.comment=Controls how fast contour tickness disappears with distance.
+
+
+
+
 option.CROSSHATCH_UB=Pencil Hardness
 option.CROSSHATCH_UB.comment=Pencil Hardness For Crosshatching. Controls how much graphite gets transfered.
 

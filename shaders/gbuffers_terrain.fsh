@@ -9,7 +9,6 @@ varying vec3 ViewNormal;
 varying vec3 WorldPos;
 varying vec3 WorldNormal;
 varying vec3 ModelPos;
-varying vec3 ViewPos;
 
 varying vec4 Color;
 

@@ -1,54 +1,48 @@
 #version 120
-
 #include "lib/Uniforms.inc"
 #include "lib/Common.inc"
 
 varying vec2 TexCoords;
 
-#define DISPLACEMENT_MAP_LAYER_COUNT 3.0
+#define KERNEL_THR 13
+#define KERNEL_DIM CONTOUR_DETECTION_KERNEL_SIZE * 2 + 1
 
-vec2 decodeDisplacement(vec2 encoded) {
-    return vec2(
-        (encoded.r - 0.5) * 2.0 * CONTOUR_SHAKE_MAX_DISPLACEMENT,
-        (encoded.g - 0.5) * 2.0 * CONTOUR_SHAKE_MAX_DISPLACEMENT
-    );
+vec3 inflate_and_filter_contour(vec2 uv){
+    int detected_count = 0;
+    float closest_falloff = 0.0;
+    float min_dist = float(KERNEL_DIM);
+
+    for (int x = -CONTOUR_DETECTION_KERNEL_SIZE; x <= CONTOUR_DETECTION_KERNEL_SIZE; x++){
+        for (int y = -CONTOUR_DETECTION_KERNEL_SIZE; y <= CONTOUR_DETECTION_KERNEL_SIZE; y++){
+            vec2 sample_uv = uv + vec2(x * texelSize.x, y * texelSize.y);
+            vec4 neighbour_contour = texture2D(colortex7, sample_uv);
+
+            if (neighbour_contour.r == 1.0) {
+                detected_count++;
+                closest_falloff = max(closest_falloff, neighbour_contour.a);
+                min_dist = min(min_dist, abs(float(x)) + abs(float(y)));
+            }
+        }
+    }
+
+    if (detected_count > KERNEL_THR) {
+        return vec3(1.0, min_dist, closest_falloff);
+    }
+    return vec3(0.0, 0.0, 1.0);
 }
 
 void main() {
-    // Sample and decode each displacement map
-    float fragment_depth_raw = texture2D(depthtex0, TexCoords).r;
-    float view_depth_dropoff = 1.0 - linearize_to_view_dist(fragment_depth_raw);
-    view_depth_dropoff = pow(view_depth_dropoff, 1.4);
+    
+    vec3 contour = inflate_and_filter_contour(TexCoords);
 
-    vec2 dmap_uv1 = vec2(TexCoords.x / DISPLACEMENT_MAP_LAYER_COUNT, TexCoords.y);
-    vec2 dmap_uv2 = dmap_uv1 + vec2(1.0 / DISPLACEMENT_MAP_LAYER_COUNT, 0.0);
-    vec2 dmap_uv3 = dmap_uv1 + vec2(2.0 / DISPLACEMENT_MAP_LAYER_COUNT, 0.0);
+    float out_color = 0.0;
+    if (contour.x == 1.0){
+        float color_falloff = pow(contour.z, CONTOUR_COLOR_FALLOFF);
+        float thickness_falloff = clamp(pow(1.0 - contour.y / float(CONTOUR_DETECTION_KERNEL_SIZE), CONTOUR_THICKNESS_FALLOFF), 0.0, 1.0);
 
-    vec2 disp1 = decodeDisplacement(texture2D(colortex5, dmap_uv1).rg) * view_depth_dropoff;
-    vec2 disp2 = decodeDisplacement(texture2D(colortex5, dmap_uv2).rg) * view_depth_dropoff;
-    vec2 disp3 = decodeDisplacement(texture2D(colortex5, dmap_uv3).rg) * view_depth_dropoff;
-
-    // Displaced UVs
-    vec2 uv1 = clamp(TexCoords + disp1, 0.0, 1.0);
-    vec2 uv2 = clamp(TexCoords + disp2, 0.0, 1.0);
-    vec2 uv3 = clamp(TexCoords + disp3, 0.0, 1.0);
-
-    // Sample contour texture at displaced locations
-    float contour_1 = 1.0 - texture2D(colortex7, uv1).r;
-    float contour_2 = 1.0 - texture2D(colortex7, uv2).r;
-    float contour_3 = 1.0 - texture2D(colortex7, uv3).r;
-
-    float ca_1 = 1.0 * (1.0 - CONTOUR_CS);
-    float ct_1 = 1.0 - CONTOUR_UB * ca_1 * contour_1;
-
-    float ca_2 = ct_1 * (1.0 - CONTOUR_CS);
-    float ct_2 = ct_1 - CONTOUR_UB * ca_2 * contour_2;
-
-    float ca_3 = ct_2 * (1.0 - CONTOUR_CS);
-    float ct_3 = ct_2 - CONTOUR_UB * ca_3 * contour_3;
-
-    float final_color = ct_3 + (1.0 - ct_3) * (1.0 - view_depth_dropoff);
+        out_color = color_falloff * thickness_falloff;
+    }
 
     /* RENDERTARGETS:4 */
-    gl_FragData[0] = vec4(vec3(final_color), 1.0);
+    gl_FragData[0] = vec4(vec3(out_color), contour.z);
 }
