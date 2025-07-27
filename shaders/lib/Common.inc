@@ -36,9 +36,15 @@ bool is_sky(vec2 uv) {
     return depth == 1.0;
 }
 
+float pencil_blend_function(float ct, float cs, float local_UB, float local_UW, float local_THR) {
+    float ca = ct * (1.0 - cs);
+    ca = ct >= local_THR ? ca * local_UW : ca;
+    return ct - local_UB * ca;
+}
+
 vec3 distortShadowClipPos(vec3 shadowClipPos){
   float distortionFactor = length(shadowClipPos.xy); // distance from the player in shadow clip space
-  distortionFactor += 0.1; // very small distances can cause issues so we add this to slightly reduce the distortion
+  distortionFactor += 0.1;
 
   shadowClipPos.xy /= distortionFactor;
   shadowClipPos.z *= 0.5; // increases shadow distance on the Z axis, which helps when the sun is very low in the sky
@@ -119,7 +125,7 @@ vec3 getSoftShadow(vec2 uv, vec4 shadowClipPos){
     for (float y = -range; y <= range; y+= increment){
       vec2 offset = rotation * vec2(x, y) / shadowMapResolution; // offset in the rotated direction by the specified amount. We divide by the resolution so our offset is in terms of pixels
       vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0); // add offset
-      offsetShadowClipPos.z -= 0.001; // apply bias
+      offsetShadowClipPos.z -= 0.00001; // apply bias
       offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz); // apply distortion
       vec3 shadowNDCPos = offsetShadowClipPos.xyz / offsetShadowClipPos.w; // convert to NDC space
       vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5; // convert to screen space

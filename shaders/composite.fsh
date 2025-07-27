@@ -40,6 +40,8 @@ void main() {
     float fragment_depth_raw = texture2D(depthtex0, TexCoords).r;
     float view_depth_falloff = 1.0 - linearize_to_view_dist(fragment_depth_raw);
     
+
+
     /* RENDERTARGETS:7 */
     gl_FragData[0] = vec4(vec3(edge), view_depth_falloff);
 }

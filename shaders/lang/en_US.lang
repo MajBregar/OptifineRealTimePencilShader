@@ -22,7 +22,8 @@ option.CONTOUR_COLOR_FALLOFF.comment=Controls how fast contour color disappears 
 option.CONTOUR_THICKNESS_FALLOFF=Thickness Falloff
 option.CONTOUR_THICKNESS_FALLOFF.comment=Controls how fast contour tickness disappears with distance.
 
-
+option.CONTOUR_NOISE=Contour Roughness
+option.CONTOUR_NOISE.comment=Controls Random Noise of Contours.
 
 
 option.CROSSHATCH_UB=Pencil Hardness
@@ -51,5 +52,7 @@ option.SHADOW_SOFTNESS.comment=Controls how blury the shadow is.
 
 option.AMBIENT_LIGHT=Ambient Light
 option.AMBIENT_LIGHT.comment=Baseline World Light Level.
+
+
 
 

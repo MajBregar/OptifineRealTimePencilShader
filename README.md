@@ -4,23 +4,22 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 ## TODO
 
 ### LATER
-- add tilable paper texture
 - make/find paper normal map
 
-### QOL
+### REALLY LOW PRIO
 - make transparent blocks texture correctly
 - make intuitive options
-- refactor all code - ESPECIALLY SHADOW MAP CODE
 - torches having circular lighting when placed
+
+
+### QOL
+- refactor all code - ESPECIALLY SHADOW MAP CODE
 - implement ambient occlusion
-- better contour blend function - would make leaves and other contour dense areas look better
 
 ### RESONABLY DONE - maybe good? think about later
 
 ### HIGH PRIO
-- fix white borders of blocks ignoring shadows - definitely some sort of shadow map displacement
-- fix shadowmap acne
-
-
-
-
+- better contour blend function - would make leaves and other contour dense areas look better
+- white shadow map distortion artifacts
+- somehow blends contour with far away chunk cutoff contour - the entire pencil thickness kernel gets effected, test with that
+- somehow normalize thickness falloff to the baseline contour color

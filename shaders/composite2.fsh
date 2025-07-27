@@ -46,16 +46,15 @@ void main() {
     float contour_2 = texture2D(colortex4, uv2f).r;
     float contour_3 = texture2D(colortex4, uv3f).r;
 
-    float ca_1 = 1.0 * (1.0 - CONTOUR_CS);
-    float ct_1 = 1.0 - CONTOUR_UB * ca_1 * contour_1 * elim_ind1;
+    vec2 noise_sample_uv = texture2D(colortex3, TexCoords).xy;
+    float noise = texture2D(noisetex, noise_sample_uv).r * CONTOUR_NOISE;
 
-    float ca_2 = ct_1 * (1.0 - CONTOUR_CS);
-    float ct_2 = ct_1 - CONTOUR_UB * ca_2 * contour_2 * elim_ind2;
+    float c1_blend = pencil_blend_function(1.0,      CONTOUR_CS, clamp(CONTOUR_UB * contour_1 - noise, 0.0, 1.0) * elim_ind1, CONTOUR_UW, CONTOUR_WP_THRESHOLD);
+    float c2_blend = pencil_blend_function(c1_blend, CONTOUR_CS, clamp(CONTOUR_UB * contour_2 - noise, 0.0, 1.0) * elim_ind2, CONTOUR_UW, CONTOUR_WP_THRESHOLD);
+    float c3_blend = pencil_blend_function(c2_blend, CONTOUR_CS, clamp(CONTOUR_UB * contour_3 - noise, 0.0, 1.0) * elim_ind3, CONTOUR_UW, CONTOUR_WP_THRESHOLD);
 
-    float ca_3 = ct_2 * (1.0 - CONTOUR_CS);
-    float ct_3 = ct_2 - CONTOUR_UB * ca_3 * contour_3 * elim_ind3;
+    float final_color = c3_blend;
 
-    float final_color = ct_3;
 
     /* RENDERTARGETS:7 */
     gl_FragData[0] = vec4(vec3(final_color), 1.0);
