@@ -19,7 +19,5 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 ### RESONABLY DONE - maybe good? think about later
 
 ### HIGH PRIO
-- better contour blend function - would make leaves and other contour dense areas look better
 - white shadow map distortion artifacts
-- somehow blends contour with far away chunk cutoff contour - the entire pencil thickness kernel gets effected, test with that
-- somehow normalize thickness falloff to the baseline contour color
+- fix aliasing on contours and artifacs from sky - check official zbuffer for the latter

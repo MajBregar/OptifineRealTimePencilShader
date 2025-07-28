@@ -67,12 +67,23 @@ float remap_block_light_level(float raw_light){
 }
 
 void main() {
-    float contour = texture2D(colortex7, TexCoords).r;
+
+    vec4 contour_data = texture2D(colortex7, TexCoords);
+    float contour = contour_data.r;
+    vec3 background_color = vec3(float(200), float(164), float(130)) / 256.0;
+
+
+    if (contour_data.a == 1.0 && is_sky(TexCoords)){
+        gl_FragData[0] = vec4(background_color * 1.2, 1.0);
+        return;
+    }
 
     vec3 fragment_normal = texture2D(colortex11, TexCoords).rgb;
     float fragment_depth_raw = texture2D(depthtex0, TexCoords).r;
-    float view_depth_falloff = linearize_to_view_dist(fragment_depth_raw);
-
+    float shading_color_falloff = pow(linearize_to_view_dist(fragment_depth_raw), CONTOUR_COLOR_FALLOFF);;
+    
+    
+    
     //LIGHT CALCULATIONS
     float sun_light_level = max(dot(fragment_normal, normalize(sunPosition)), 0.0);
 
@@ -87,20 +98,23 @@ void main() {
 
 
     float shading_color = is_sky(TexCoords) ? 1.0 : sample_pencil_shading(final_light_level);
-    shading_color = view_depth_falloff + shading_color; 
-    shading_color = pencil_blend_function(min(contour, shading_color), contour, 1.0, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
+
+    shading_color = shading_color + shading_color_falloff * (1.0 - shading_color); 
+
+    shading_color = pencil_blend_function(min(contour, shading_color), contour, CONTOUR_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
 
 
 
     vec2 raw_uv = texture2D(colortex3, TexCoords).rg;
     vec3 default_block_color = texture2D(colortex0, TexCoords).rgb;
     vec3 paper_texture_color = texture2D(colortex9, raw_uv).rgb;
-    float b = 0.0;
+    float b = 0.7;
 
-    vec3 background_color = vec3(float(200), float(164), float(130)) / 256.0;
 
-    vec3 texturing_color = (1.0 - b) * paper_texture_color + b * default_block_color;
+    vec3 texturing_color = (1.0 - b) * paper_texture_color + b * background_color;
     vec3 paper = texturing_color * shading_color;
+
+
 
     /* RENDERTARGETS:0 */
     gl_FragData[0] = vec4(paper, 1.0);

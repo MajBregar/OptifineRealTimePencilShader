@@ -49,13 +49,13 @@ void main() {
     vec2 noise_sample_uv = texture2D(colortex3, TexCoords).xy;
     float noise = texture2D(noisetex, noise_sample_uv).r * CONTOUR_NOISE;
 
-    float c1_blend = pencil_blend_function(1.0,      CONTOUR_CS, clamp(CONTOUR_UB * contour_1 - noise, 0.0, 1.0) * elim_ind1, CONTOUR_UW, CONTOUR_WP_THRESHOLD);
-    float c2_blend = pencil_blend_function(c1_blend, CONTOUR_CS, clamp(CONTOUR_UB * contour_2 - noise, 0.0, 1.0) * elim_ind2, CONTOUR_UW, CONTOUR_WP_THRESHOLD);
-    float c3_blend = pencil_blend_function(c2_blend, CONTOUR_CS, clamp(CONTOUR_UB * contour_3 - noise, 0.0, 1.0) * elim_ind3, CONTOUR_UW, CONTOUR_WP_THRESHOLD);
+    float c1_blend = pencil_blend_function(1.0,      CONTOUR_CS, clamp(CONTOUR_UB * contour_1 - noise, 0.0, 1.0), CONTOUR_UW, CONTOUR_WP_THRESHOLD);
+    float c2_blend = pencil_blend_function(c1_blend, CONTOUR_CS, clamp(CONTOUR_UB * contour_2 - noise, 0.0, 1.0), CONTOUR_UW, CONTOUR_WP_THRESHOLD);
+    float c3_blend = pencil_blend_function(c2_blend, CONTOUR_CS, clamp(CONTOUR_UB * contour_3 - noise, 0.0, 1.0), CONTOUR_UW, CONTOUR_WP_THRESHOLD);
 
     float final_color = c3_blend;
-
+    float is_contour = max(elim_ind1, max(elim_ind2, elim_ind3));
 
     /* RENDERTARGETS:7 */
-    gl_FragData[0] = vec4(vec3(final_color), 1.0);
+    gl_FragData[0] = vec4(vec3(final_color), is_contour);
 }
