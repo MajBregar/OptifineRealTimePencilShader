@@ -5,12 +5,13 @@
 #include "lib/Shadows.glsl"
 
 varying vec2 TexCoords;
+varying vec3 ModelPos;
+varying vec3 ModelNormal;
 varying vec4 Color;
 
 void main(){
-    gl_Position = ftransform();
-    gl_Position.xyz = distortShadowClipPos(gl_Position.xyz);
-    TexCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    Color = gl_Color;
-}
+    //vec4 c = texture2D(texture, TexCoords) * Color;
 
+    /* RENDERTARGETS:1*/
+    gl_FragData[0] = vec4(ModelNormal + 10.0,      1.0);
+}

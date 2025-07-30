@@ -1,48 +1,8 @@
 
-/*
-const int colortex1Format = RGB32F;
-const int colortex10Format = RGB32F;
-const int colortex11Format = RGB32F;
-const int colortex8Format = RGB16F;
-*/
 
-
-const int shadowMapResolution = 2048;
-const int noiseTextureResolution = 128;
-const float sunPathRotation = 45.0;
-
-const vec3 world_x_normal = vec3(1.0, 0.0, 0.0);
-const vec3 world_y_normal = vec3(0.0, 1.0, 0.0);
-const vec3 world_z_normal = vec3(0.0, 0.0, 1.0);
-
-const bool shadowtex0Nearest = true;
-const bool shadowtex1Nearest = true;
-const bool shadowcolor0Nearest = true;
-
-const vec3 forward_facing_vector = vec3(0.0, 0.0, 1.0);
-vec2 texelSize = vec2(1.0 / viewWidth, 1.0 / viewHeight);
-
-
-float linearize_depth(float d)
-{
-  float z_n = d * 2.0 - 1.0;  // convert [0,1]→[-1,1] NDC
-  float z_eye = (2.0 * near * far) / (far + near - z_n * (far - near));
-  return z_eye;
-}
-
-float linearize_to_view_dist(float depth){
-  return clamp(linearize_depth(depth) / min(far, float(CONTOUR_VIEW_DISTANCE)), 0.0, 1.0);
-}
-
-bool is_sky(vec2 uv) {
-    float depth = texture2D(depthtex1, uv).r;
-    return depth == 1.0;
-}
-
-float pencil_blend_function(float ct, float cs, float local_UB, float local_UW, float local_THR) {
-    float ca = ct * (1.0 - cs);
-    ca = ct >= local_THR ? ca * local_UW : ca;
-    return ct - local_UB * ca;
+vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
+  vec4 homPos = projectionMatrix * vec4(position, 1.0);
+  return homPos.xyz / homPos.w;
 }
 
 vec3 distortShadowClipPos(vec3 shadowClipPos){
@@ -54,10 +14,6 @@ vec3 distortShadowClipPos(vec3 shadowClipPos){
   return shadowClipPos;
 }
 
-vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
-  vec4 homPos = projectionMatrix * vec4(position, 1.0);
-  return homPos.xyz / homPos.w;
-}
 
 vec3 getShadow(vec3 shadowScreenPos){
   float transparentShadow = step(shadowScreenPos.z, texture(shadowtex0, shadowScreenPos.xy).r); // sample the shadow map containing everything
@@ -139,4 +95,3 @@ vec3 getSoftShadow(vec2 uv, vec4 shadowClipPos){
 
   return shadowAccum / float(samples); // divide sum by count, getting average shadow
 }
-

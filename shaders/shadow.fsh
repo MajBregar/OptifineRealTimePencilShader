@@ -1,7 +1,9 @@
 
 #version 120
-#include "lib/Uniforms.inc"
-#include "lib/Common.inc"
+#include "lib/Uniforms.glsl"
+#include "lib/Geometry.glsl"
+#include "lib/Common.glsl"
+#include "lib/Shadows.glsl"
 
 varying vec2 TexCoords;
 varying vec4 Color;

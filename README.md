@@ -11,6 +11,7 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 - make intuitive options
 - torches having circular lighting when placed
 - white shadow map distortion artifacts
+- maybe a circle view distance that does not render anything beyond a certain depth?
 
 
 ### QOL
@@ -20,7 +21,7 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 
 ### HIGH PRIO
 - fix aliasing on contours and artifacs from sky - check official zbuffer for the latter
-- rewrite blend functions for crosshatching
+- rewrite blend functions for crosshatching + make shading texture with no bands in middle or edge
 
 ### OPTIMIZATIONS
 - refactor all code - ESPECIALLY SHADOW MAP CODE
