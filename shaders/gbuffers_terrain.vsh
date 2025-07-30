@@ -16,10 +16,16 @@ void main() {
 
     TexCoords = gl_MultiTexCoord0.st;
 
-    WorldPos = gl_Vertex.xyz;
+    ModelPos = gl_Vertex.xyz;
+
+    vec3 viewPos = (gbufferModelView * gl_Vertex).xyz;
+    vec3 feetPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+
+    //
+    WorldPos = feetPos + cameraPosition;
+
     WorldNormal = normalize(gl_Normal);
 
-    ModelPos = gl_Vertex.xyz - chunkOffset;
 
     Lightmap = mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.st;
     Lightmap = (Lightmap * 31.05 / 32.0) - (1.05 / 16.0);

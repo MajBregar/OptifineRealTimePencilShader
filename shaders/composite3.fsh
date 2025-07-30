@@ -4,7 +4,7 @@
 
 varying vec2 TexCoords;
 
-#define LIGHT_TEXTURE_LAYERS 128.0
+#define LIGHT_TEXTURE_LAYERS 64.0
 
 vec2 rotateUV90(vec2 uv) {
     uv -= 0.5;
@@ -21,41 +21,99 @@ float level_to_offset(float light_level){
     return (floor((1.0 - light_level) * (LIGHT_TEXTURE_LAYERS - 1.0))) / LIGHT_TEXTURE_LAYERS;
 }
 
+vec2 fast_rotate_uv_45(vec2 uv) {
+    const float sincos = 0.70710678;
+    uv -= 0.5;
+    vec2 rotated = vec2(sincos * uv.x - sincos * uv.y, sincos * uv.x + sincos * uv.y);
+    return rotated + 0.5;
+}
 
-float sample_pencil_shading(float light_level){
+vec2 fast_rotate_uv_90(vec2 uv){
+    uv -= 0.5;
+    vec2 rotated = vec2(-uv.y, uv.x);
+    return rotated + 0.5;
+}
 
-    float light_offset = level_to_offset(light_level);
+vec2 mirror_uv(vec2 uv){
+    vec2 mirrored_uv = fract(uv);
+    mirrored_uv.x = int(floor(uv.x)) % 2 != 0 ? 1.0 - mirrored_uv.x : mirrored_uv.x;
+    mirrored_uv.y = int(floor(uv.y)) % 2 != 0 ? 1.0 - mirrored_uv.y : mirrored_uv.y;
+    return mirrored_uv;
+}
 
-    vec2 raw_uv = texture2D(colortex3, TexCoords).rg;
-    vec2 local_uv = raw_uv * vec2(1.0 / LIGHT_TEXTURE_LAYERS, 1.0);
-    vec2 local_uv_rot = rotateUV90(raw_uv) * vec2(1.0 / LIGHT_TEXTURE_LAYERS, 1.0);
+vec2 rotate_and_mirror_uv(vec2 uv, float ang_rad){
+    float cosang = cos(ang_rad);
+    float sinang = sin(ang_rad);
+    vec2 rotated = mat2(cosang, -sinang, sinang,  cosang) * uv;
+    return mirror_uv(rotated);
+}
 
-    vec2 ct_sample_uv = vec2(local_uv.x + light_offset, local_uv.y);
-    float ct = texture2D(colortex6, ct_sample_uv).r;
+vec2 get_face_tangent_space_uv(vec3 world_pos, vec3 world_normal) {
+    vec3 blending = abs(world_normal);
+    blending = normalize(max(blending, 0.0001));
+    blending /= (blending.x + blending.y + blending.z);
 
-    vec2 cs_sample_uv = vec2(local_uv_rot.x + light_offset, local_uv_rot.y);
-    float cs = texture2D(colortex6, cs_sample_uv).r;
+    vec2 uvX = world_pos.zy;
+    vec2 uvY = world_pos.xz;
+    vec2 uvZ = world_pos.xy;
 
+    return fract(
+        uvX * blending.x +
+        uvY * blending.y +
+        uvZ * blending.z
+    );
+}
 
-    vec3 sun_view = normalize(sunPosition);
-    vec3 sun_world = normalize((gbufferModelViewInverse * vec4(sun_view, 0.0)).xyz);
-    vec2 sunXZ = normalize(sun_world.xz);
-    float sunYaw = atan(sunXZ.x, -sunXZ.y);
-    float angle = sunYaw;
+float sample_pencil_shading(float light_level) {
+    vec2 layer_uv_shift = vec2(level_to_offset(light_level), 0.0);
+    vec2 layer_uv_adjust = vec2(1.0 / LIGHT_TEXTURE_LAYERS, 1.0);
 
-    mat2 rotation_matrix = mat2(cos(angle), -sin(angle), sin(angle),  cos(angle));
-    vec2 cs2_sample_uv = rotation_matrix * raw_uv ;
-    cs2_sample_uv.x = abs(cs2_sample_uv.x);
-    cs2_sample_uv = cs2_sample_uv * vec2(1.0 / LIGHT_TEXTURE_LAYERS, 1.0) + vec2(light_offset, 0.0);
-    float cs2 = texture2D(colortex6, cs2_sample_uv).r;
+    vec3 model_pos = texture2D(colortex10, TexCoords).rgb;
+    vec3 world_normal = texture2D(colortex1, TexCoords).rgb;
+    vec3 world_pos = model_pos + cameraPosition;    
+    vec2 base_face_uv = get_face_tangent_space_uv(world_pos, world_normal);
+    
+    //horizontal sample
+    vec2 side_base_1 = base_face_uv;
+    //side_base_1 = pow(base_face_uv, vec2(0.5));
 
-    float light_blend = CROSSHATCH_BLENDING_MULTIPLIER * CROSSHATCH_UB * (1.0 - light_level);
+    vec2 side_sample_1 = side_base_1 * layer_uv_adjust + layer_uv_shift;         
+    float cs_face_1 = texture2D(colortex6, side_sample_1).r;
+    //vertical sample
+    vec2 side_base_2 = fast_rotate_uv_90(base_face_uv);
+    //side_base_2 = pow(side_base_2, vec2(0.5));
 
-    float blend1 = pencil_blend_function(1.0, ct, light_blend, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
-    float blend2 = pencil_blend_function(blend1, cs, light_blend, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
-    float o = light_level > (1.0 - CROSSHATCH_DIAGONAL_CH_THRESHOLD) ? blend2 : pencil_blend_function(blend2, cs2, light_blend, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
+    vec2 side_sample_2 = side_base_2 * layer_uv_adjust + layer_uv_shift;         
+    float cs_face_2 = texture2D(colortex6, side_sample_2).r;
 
-    return o;
+    //diagonal sample
+    float cs_diagonal;
+    if (dot(world_normal, world_y_normal) == 1.0){
+        //shadow on ground
+        vec3 sun_world_normal = normalize((gbufferModelViewInverse * vec4(normalize(sunPosition), 0.0)).xyz);
+        vec2 sun_projection = normalize(sun_world_normal.xz);
+        float sun_angle = atan(sun_projection.x, -sun_projection.y);
+
+        vec2 sun_rot_base = rotate_and_mirror_uv(world_pos.xz, sun_angle);
+        vec2 sun_rot_sample = sun_rot_base * layer_uv_adjust + layer_uv_shift;
+        cs_diagonal = texture2D(colortex6, sun_rot_sample).r;
+    } else {
+        //shadow on face
+        vec2 diagonal_base = fast_rotate_uv_45(base_face_uv);
+        diagonal_base = abs(diagonal_base);
+        vec2 diagonal_sample = diagonal_base * layer_uv_adjust + layer_uv_shift;         
+        cs_diagonal = texture2D(colortex6, diagonal_sample).r;
+    }
+    
+    vec3 raw_noise = texture2D(noisetex, base_face_uv).rgb;
+    float ub_noise = (raw_noise.r * 2.0 - 1.0) * 0.0;
+    float c_noise = (raw_noise.g * 2.0 - 1.0) * 0.0;
+
+    float shading_blend_1 = pencil_blend_function(1.0,             clamp(cs_face_1 + c_noise, 0.0, 1.0),   CROSSHATCH_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
+    float shading_blend_2 = pencil_blend_function(shading_blend_1, clamp(cs_face_2 + c_noise, 0.0, 1.0),   CROSSHATCH_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
+    float shading_blend_3 = pencil_blend_function(shading_blend_2, clamp(cs_diagonal + c_noise, 0.0, 1.0), clamp(CROSSHATCH_UB + ub_noise, 0.0, 1.0), CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
+
+    return shading_blend_3;
 }
 
 float remap_sky_light_level(float raw_light){
@@ -104,7 +162,6 @@ void main() {
     shading_color = pencil_blend_function(min(contour, shading_color), contour, CONTOUR_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
 
 
-
     vec2 raw_uv = texture2D(colortex3, TexCoords).rg;
     vec3 default_block_color = texture2D(colortex0, TexCoords).rgb;
     vec3 paper_texture_color = texture2D(colortex9, raw_uv).rgb;
@@ -114,9 +171,9 @@ void main() {
     vec3 texturing_color = (1.0 - b) * paper_texture_color + b * background_color;
     vec3 paper = texturing_color * shading_color;
 
-
+    vec3 test = vec3(shading_color);
 
     /* RENDERTARGETS:0 */
-    gl_FragData[0] = vec4(paper, 1.0);
+    gl_FragData[0] = vec4(test, 1.0);
 }
 

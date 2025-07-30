@@ -3,7 +3,7 @@
 const int colortex1Format = RGB32F;
 const int colortex10Format = RGB32F;
 const int colortex11Format = RGB32F;
-const int colortex8Format = RGBA16;
+const int colortex8Format = RGB16F;
 */
 
 
@@ -11,6 +11,9 @@ const int shadowMapResolution = 2048;
 const int noiseTextureResolution = 128;
 const float sunPathRotation = 45.0;
 
+const vec3 world_x_normal = vec3(1.0, 0.0, 0.0);
+const vec3 world_y_normal = vec3(0.0, 1.0, 0.0);
+const vec3 world_z_normal = vec3(0.0, 0.0, 1.0);
 
 const bool shadowtex0Nearest = true;
 const bool shadowtex1Nearest = true;
