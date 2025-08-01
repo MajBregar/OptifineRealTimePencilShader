@@ -9,20 +9,22 @@ varying vec2 TexCoords;
 #define CONTOUR_DETECTION_THRESHOLD_NORMALS 0.999
 #define CONTOUR_DETECTION_THRESHOLD_COPLANAR 0.001
 
-vec3 hand_contour_detection(vec2 uv) {
+vec3 hand_contour_detection(vec2 uv, vec3 center_world_normal) {
 
-    vec3 center_world_normal = texture2D(colortex1, uv).rgb - 10.0;
+    vec3 center_view_normal = normalize(mat3(gbufferModelView) * (center_world_normal - 10.0));
 
     for (int x = -1; x <= 1; x++){
         for (int y = -1; y <= 1; y++){
             if (x == 0 && y == 0) continue;
 
             vec2 sample_uv = uv + vec2(x * texelSize.x, y * texelSize.y);
-            vec3 neighbour_world_normal = texture2D(colortex1, sample_uv).rgb - 10.0;
 
-            float normal_similarity = dot(center_world_normal, neighbour_world_normal);
+            //normal based cd
+            vec3 neighbour_view_normal = normalize(mat3(gbufferModelView) * (texture2D(colortex1, sample_uv).rgb - 10.0));
 
-            if (normal_similarity < CONTOUR_DETECTION_THRESHOLD_NORMALS) return vec3(1.0, sample_uv);     
+            float normal_similarity = dot(center_view_normal, neighbour_view_normal);
+
+            if (normal_similarity < CONTOUR_DETECTION_THRESHOLD_NORMALS) return vec3(1.0, sample_uv);   
 
         }
     }
@@ -34,7 +36,7 @@ vec3 detect_contour(vec2 uv){
 
     vec3 center_world_normal = texture2D(colortex1, uv).rgb;
 
-    if (center_world_normal.x > 1.0) return hand_contour_detection(uv);
+    if (center_world_normal.x > 1.0) return hand_contour_detection(uv, center_world_normal);
 
     vec3 center_world_position = texture2D(colortex2, uv).rgb + cameraPosition;
     
@@ -46,6 +48,8 @@ vec3 detect_contour(vec2 uv){
 
             //normal based cd
             vec3 neighbour_world_normal = texture2D(colortex1, sample_uv).rgb;
+            if (neighbour_world_normal.x > 1.0) continue;
+
             float normal_similarity = dot(center_world_normal, neighbour_world_normal);
 
             if (normal_similarity < CONTOUR_DETECTION_THRESHOLD_NORMALS) return vec3(1.0, sample_uv);        
@@ -74,6 +78,6 @@ void main() {
         edge_data_output = vec4(1.0, 1.0, 1.0, linear_depth_falloff);
     }
 
-    /* RENDERTARGETS:8 */
+    /* RENDERTARGETS:4 */
     gl_FragData[0] = edge_data_output;
 }

@@ -50,6 +50,7 @@ uniform float far;
 uniform vec3 chunkOffset;
 uniform vec3 sunPosition;
 uniform ivec2 eyeBrightness;
+uniform ivec2 eyeBrightnessSmooth;
 uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 

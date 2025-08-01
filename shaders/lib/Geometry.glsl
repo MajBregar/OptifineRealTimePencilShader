@@ -46,9 +46,9 @@ vec2 get_face_tangent_space_uv(vec3 world_pos, vec3 world_normal) {
     blending = normalize(max(blending, 0.0001));
     blending /= (blending.x + blending.y + blending.z);
 
-    vec2 uvX = world_pos.zy;
-    vec2 uvY = world_pos.xz;
-    vec2 uvZ = world_pos.xy;
+    vec2 uvX = fract(world_pos.zy);
+    vec2 uvY = fract(world_pos.xz);
+    vec2 uvZ = fract(world_pos.xy);
 
     return fract(
         uvX * blending.x +
@@ -56,3 +56,19 @@ vec2 get_face_tangent_space_uv(vec3 world_pos, vec3 world_normal) {
         uvZ * blending.z
     );
 }
+
+vec2 get_model_tangent_uv(vec3 model_pos, vec3 model_origin, vec3 model_normal) {
+    vec3 normal = normalize(model_normal);
+
+    vec3 arbitrary = abs(normal.y) < 0.999 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+    vec3 tangent   = normalize(cross(arbitrary, normal));
+    vec3 bitangent = normalize(cross(normal, tangent));
+
+    vec3 offset = model_pos - model_origin;
+
+    float u = dot(offset, tangent);
+    float v = dot(offset, bitangent);
+
+    return vec2(u, v);
+}
+

@@ -66,23 +66,23 @@ vec4 get_shadow_map_clip_pos(vec2 tex_uv, float depth){
 
 
 vec3 getSoftShadow(vec2 uv, vec4 shadowClipPos){
-  const float range = SHADOW_SOFTNESS / 2.0; // how far away from the original position we take our samples from
-  const float increment = range / SHADOW_QUALITY; // distance between each sample
+  const float range = SHADOW_SOFTNESS / 2.0;
+  const float increment = range / SHADOW_QUALITY;
 
   float noise = getNoise(uv).r;
 
-  float theta = noise * radians(360.0); // random angle using noise value
+  float theta = noise * radians(360.0);
   float cosTheta = cos(theta);
   float sinTheta = sin(theta);
 
-  mat2 rotation = mat2(cosTheta, -sinTheta, sinTheta, cosTheta); // matrix to rotate the offset around the original position by the angle
+  mat2 rotation = mat2(cosTheta, -sinTheta, sinTheta, cosTheta);
 
-  vec3 shadowAccum = vec3(0.0); // sum of all shadow samples
+  vec3 shadowAccum = vec3(0.0);
   int samples = 0;
 
   for(float x = -range; x <= range; x += increment){
     for (float y = -range; y <= range; y+= increment){
-      vec2 offset = rotation * vec2(x, y) / shadowMapResolution; // offset in the rotated direction by the specified amount. We divide by the resolution so our offset is in terms of pixels
+      vec2 offset = rotation * vec2(x, y) / shadowMapResolution;
       vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0); // add offset
       offsetShadowClipPos.z -= 0.00001; // apply bias
       offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz); // apply distortion
@@ -94,4 +94,25 @@ vec3 getSoftShadow(vec2 uv, vec4 shadowClipPos){
   }
 
   return shadowAccum / float(samples); // divide sum by count, getting average shadow
+}
+
+float remap_sky_light_level(float raw_light){
+
+    float x = 0.0;
+    return 1.0 * pow(raw_light, 1.0) * (1.0 - 2 * x) + x;
+}
+
+float remap_block_light_level(float raw_light){
+    return 1.1 * pow(raw_light, 2.2);
+}
+
+float remap_sun_light_level(float raw_light){
+    return 1.0 * pow(raw_light, 1.0);
+}
+
+
+
+vec2 get_lightmap_light(vec2 uv){
+  vec2 lightmap_levels = texture2D(colortex3, uv).rg;
+  return vec2(remap_sky_light_level(lightmap_levels.g), remap_block_light_level(lightmap_levels.r));
 }
