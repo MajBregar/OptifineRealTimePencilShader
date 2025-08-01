@@ -1,4 +1,4 @@
-#version 120
+#version 330
 #include "lib/Uniforms.glsl"
 #include "lib/Common.glsl"
 

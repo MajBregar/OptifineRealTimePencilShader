@@ -17,7 +17,7 @@ vec2 get_displacement(vec2 uv, float layer) {
     return vec2((encoded.r - 0.5) * 2.0 * CONTOUR_SHAKE_MAX_DISPLACEMENT, (encoded.g - 0.5) * 2.0 * CONTOUR_SHAKE_MAX_DISPLACEMENT);
 }
 
-float get_displaced_fragment_contour_color(vec2 uv, vec3 world_pos, vec3 world_normal){
+float get_displaced_fragment_contour_color(vec2 uv, vec2 face_uv){
     vec2 raw_displacement_1 = get_displacement(uv, 0.0);
     vec2 raw_displacement_2 = get_displacement(uv, 1.0);
     vec2 raw_displacement_3 = get_displacement(uv, 2.0);
@@ -34,7 +34,6 @@ float get_displaced_fragment_contour_color(vec2 uv, vec3 world_pos, vec3 world_n
     float contour_2 = texture2D(colortex4, clamp(uv + final_contour_displacement_2, 0.0, 1.0)).r;
     float contour_3 = texture2D(colortex4, clamp(uv + final_contour_displacement_3, 0.0, 1.0)).r;
 
-    vec2 face_uv = get_face_tangent_space_uv(world_pos, world_normal);
     float noise = texture2D(noisetex, face_uv).r * CONTOUR_NOISE;
 
     float c1_blend = pencil_blend_function(1.0,      CONTOUR_CS, clamp(CONTOUR_UB * contour_1 - noise, 0.0, 1.0), CONTOUR_UW, CONTOUR_WP_THRESHOLD);
@@ -53,7 +52,7 @@ vec2 level_to_uv_offset(float light_level) {
     return vec2(col, row) / TILE_GRID_SIZE;
 }
 
-float sample_pencil_shading(float light_level, vec3 world_normal, vec3 world_pos) {
+float sample_pencil_shading(float light_level, vec3 world_normal, vec3 world_pos, vec2 face_uv) {
 
     float bias = 0.0;
     light_level = clamp(light_level + bias, 0.0, 1.0);
@@ -62,7 +61,7 @@ float sample_pencil_shading(float light_level, vec3 world_normal, vec3 world_pos
     vec2 layer_uv_shift = level_to_uv_offset(light_level);
     vec2 layer_uv_adjust = vec2(1.0 / TILE_GRID_SIZE, 1.0 / TILE_GRID_SIZE);
 
-    vec2 base_face_uv = get_face_tangent_space_uv(world_pos, world_normal);
+    vec2 base_face_uv = face_uv;
     
     //vec3 raw_noise = texture2D(noisetex, base_face_uv).rgb;
 
@@ -122,6 +121,9 @@ void main() {
     vec3 model_pos = texture2D(colortex2, TexCoords).rgb;
     vec3 world_pos = model_pos + cameraPosition;
     vec3 world_normal = texture2D(colortex1, TexCoords).rgb;
+
+    vec2 face_uv = get_face_tangent_space_uv(world_pos, world_normal);
+
     bool hand_shading = false;
     if (world_normal.x > 1.0) {
         world_normal -= 10.0;
@@ -129,7 +131,7 @@ void main() {
     }
 
 
-    float contour_color = get_displaced_fragment_contour_color(TexCoords, world_pos, world_normal);
+    float contour_color = get_displaced_fragment_contour_color(TexCoords, face_uv);
 
     vec3 view_normal = normalize(mat3(gbufferModelView) * world_normal);
     float depth_raw = texture2D(depthtex0, TexCoords).r;
@@ -158,7 +160,7 @@ void main() {
 
 
     
-    float shading_color = is_sky(TexCoords) ? 1.0 : sample_pencil_shading(light_color, world_normal, world_pos);
+    float shading_color = is_sky(TexCoords) ? 1.0 : sample_pencil_shading(light_color, world_normal, world_pos, face_uv);
 
 
     float final_color = pencil_blend_function(min(contour_color, shading_color), contour_color, CONTOUR_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);

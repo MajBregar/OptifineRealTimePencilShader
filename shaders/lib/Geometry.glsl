@@ -57,18 +57,15 @@ vec2 get_face_tangent_space_uv(vec3 world_pos, vec3 world_normal) {
     );
 }
 
-vec2 get_model_tangent_uv(vec3 model_pos, vec3 model_origin, vec3 model_normal) {
-    vec3 normal = normalize(model_normal);
-
-    vec3 arbitrary = abs(normal.y) < 0.999 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
-    vec3 tangent   = normalize(cross(arbitrary, normal));
+vec2 get_view_tangent_uv(vec3 view_pos, vec3 view_tangent, vec3 view_normal) {
+    vec3 normal = normalize(view_normal);
+    vec3 tangent = normalize(view_tangent);
     vec3 bitangent = normalize(cross(normal, tangent));
 
-    vec3 offset = model_pos - model_origin;
+    vec3 offset = view_pos;
 
     float u = dot(offset, tangent);
     float v = dot(offset, bitangent);
 
     return vec2(u, v);
 }
-
