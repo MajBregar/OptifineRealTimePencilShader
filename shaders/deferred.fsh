@@ -3,6 +3,7 @@
 #include "lib/Geometry.glsl"
 #include "lib/Common.glsl"
 #include "lib/Shadows.glsl"
+#include "lib/BlockHandling.glsl"
 
 varying vec2 TexCoords;
 
@@ -36,15 +37,23 @@ vec3 detect_contour(vec2 uv){
 
     vec3 center_world_normal = texture2D(colortex1, uv).rgb;
 
+
     if (center_world_normal.x > 1.0) return hand_contour_detection(uv, center_world_normal);
 
     vec3 center_world_position = texture2D(colortex2, uv).rgb + cameraPosition;
+    int center_material = get_id(uv);
+
     
     for (int x = -1; x <= 1; x++){
         for (int y = -1; y <= 1; y++){
             if (x == 0 && y == 0) continue;
 
             vec2 sample_uv = uv + vec2(x * texelSize.x, y * texelSize.y);
+            
+            int neighbour_material = get_id(sample_uv);
+            if (center_material != neighbour_material) return vec3(1.0, sample_uv);
+
+            if (allowed_self_contour_detection(center_material) == false) continue; 
 
             //normal based cd
             vec3 neighbour_world_normal = texture2D(colortex1, sample_uv).rgb;
@@ -70,12 +79,14 @@ void main() {
     
     vec3 edge = detect_contour(TexCoords);
 
-    vec4 edge_data_output = vec4(0.0);
+    vec4 edge_data_output = vec4(0.0, 0.0, 0.0, 1.0);
     if (edge.r == 1.0) {
         float fragment_depth_raw = texture2D(depthtex0, TexCoords).r;
-        float neighbour_depth_raw = texture2D(depthtex0, edge.gb).r;
-        float linear_depth_falloff = 1.0 - linearize_to_view_dist(min(fragment_depth_raw, neighbour_depth_raw));
-        edge_data_output = vec4(1.0, 1.0, 1.0, linear_depth_falloff);
+        float neighbour_depth_raw = texture2D(depthtex0, edge.yz).r;
+        float view_dist_depth = normalize_to_view_dist(min(fragment_depth_raw, neighbour_depth_raw));
+
+
+        edge_data_output = vec4(1.0, 1.0, 1.0, view_dist_depth);
     }
 
     /* RENDERTARGETS:4 */

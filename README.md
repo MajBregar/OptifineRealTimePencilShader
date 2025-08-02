@@ -14,7 +14,7 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 
 
 ### QOL
-
+- make the falloff code right, its pow(depth, x) not pow(1-depth, x)
 
 ### RESONABLY DONE - maybe good? think about later
 
@@ -26,3 +26,23 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 ### OPTIMIZATIONS
 - refactor all code - ESPECIALLY SHADOW MAP CODE
 - alpha culling
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### mention in diploma
+
+- pipeline layout: gbuffers opaque -> deferred -> gbuffers transluscent -> composite -> final
+- shaders.properties, block.properties

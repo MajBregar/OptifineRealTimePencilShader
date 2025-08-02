@@ -1,11 +1,15 @@
 
+
+
+
+
 float linearize_depth(float d) {
-  float z_n = d * 2.0 - 1.0;  // convert [0,1]→[-1,1] NDC
+  float z_n = d * 2.0 - 1.0;
   float z_eye = (2.0 * near * far) / (far + near - z_n * (far - near));
   return z_eye;
 }
 
-float linearize_to_view_dist(float depth){
+float normalize_to_view_dist(float depth){
   return clamp(linearize_depth(depth) / min(far, float(CONTOUR_VIEW_DISTANCE)), 0.0, 1.0);
 }
 
@@ -41,7 +45,7 @@ vec2 rotate_and_mirror_uv(vec2 uv, float ang_rad){
     return mirror_uv(rotated);
 }
 
-vec2 get_face_tangent_space_uv(vec3 world_pos, vec3 world_normal) {
+vec2 get_block_face_tangent_space_uv(vec3 world_pos, vec3 world_normal) {
     vec3 blending = abs(world_normal);
     blending = normalize(max(blending, 0.0001));
     blending /= (blending.x + blending.y + blending.z);
@@ -57,15 +61,3 @@ vec2 get_face_tangent_space_uv(vec3 world_pos, vec3 world_normal) {
     );
 }
 
-vec2 get_view_tangent_uv(vec3 view_pos, vec3 view_tangent, vec3 view_normal) {
-    vec3 normal = normalize(view_normal);
-    vec3 tangent = normalize(view_tangent);
-    vec3 bitangent = normalize(cross(normal, tangent));
-
-    vec3 offset = view_pos;
-
-    float u = dot(offset, tangent);
-    float v = dot(offset, bitangent);
-
-    return vec2(u, v);
-}

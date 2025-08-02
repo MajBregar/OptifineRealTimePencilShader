@@ -19,6 +19,9 @@ option.CONTOUR_DISPLACEMENT_FALLOFF.comment=Controls how fast displacement disap
 option.CONTOUR_COLOR_FALLOFF=Color Falloff
 option.CONTOUR_COLOR_FALLOFF.comment=Controls how fast contour color disappears with distance.
 
+option.CONTOUR_COLOR_FALLOFF_MINIMUM=Color Falloff Min
+option.CONTOUR_COLOR_FALLOFF_MINIMUM.comment=Minimum Contour Color At Max Falloff
+
 option.CONTOUR_THICKNESS_FALLOFF=Thickness Falloff
 option.CONTOUR_THICKNESS_FALLOFF.comment=Controls how fast contour tickness disappears with distance.
 

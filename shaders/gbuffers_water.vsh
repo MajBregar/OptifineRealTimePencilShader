@@ -19,11 +19,7 @@ void main() {
     ModelPos    = gl_Vertex.xyz;
     ModelNormal = normalize(gl_Normal);
 
-    Lightmap = mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.st;
-    Lightmap = (Lightmap * 31.05 / 32.0) - (1.05 / 16.0);
-
     Color = gl_Color;
 
     Material = mc_Entity.x;
-
 }

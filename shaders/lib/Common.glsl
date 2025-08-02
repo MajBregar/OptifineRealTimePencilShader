@@ -1,15 +1,23 @@
 
 /*
+const int colortex0Format = RGB16;
 const int colortex1Format = RGB16F;
 const int colortex2Format = RGB16F;
-const int colortex8Format = RGB16F;
-const int depthtex0Format = 
+const int colortex3Format = RG16;
+const int colortex4Format = RGBA16;
+const int colortex5Format = RG16F;
+const int colortex6Format = RGB16;
+const int colortex7Format = RGB16;
+const int colortex8Format = RG16F;
+const int colortex9Format = R32F;
+const int colortex10Format = RGBA16;
 */
 
 
 const int shadowMapResolution = 2048;
 const int noiseTextureResolution = 128;
 const float sunPathRotation = 45.0;
+const float eyeBrightnessHalflife = 1.0;
 
 const vec3 world_x_normal = vec3(1.0, 0.0, 0.0);
 const vec3 world_y_normal = vec3(0.0, 1.0, 0.0);
