@@ -1,7 +1,7 @@
 #version 430
 #define SHADOW
 #define VERTEX_SHADER
-#include "lib/Inc.glsl"
+#include "../lib/Inc.glsl"
 
 
 varying vec2 TexCoords;

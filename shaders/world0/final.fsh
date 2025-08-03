@@ -1,12 +1,14 @@
 #version 430
 #define FINAL
 #define FRAGMENT_SHADER
-#include "lib/Inc.glsl"
+#include "../lib/Inc.glsl"
 
 
 varying vec2 TexCoords;
 
 void main() {
+
+    vec3 da = texture2D(ALBEDO_BUFFER, TexCoords).rgb * 0.5;
 
     vec3 shading = texture2D(SHADING_BUFFER_MAIN, TexCoords).rgb;
     float depth_raw = texture2D(DEPTH_BUFFER_ALL, TexCoords).r;
@@ -21,7 +23,9 @@ void main() {
     vec2 paper_sample_uv = texture2D(TANGENT_SPACE_UVS, TexCoords).xy;
     vec3 paper_texture = texture2D(PAPER_TEXTURE, paper_sample_uv).rgb;
 
-    vec3 final_color = tint * paper_texture * shading;
+
+    float test_blend = 0.3;
+    vec3 final_color = (test_blend * da + (1.0 - test_blend) * paper_texture) * shading;
 
     gl_FragColor = vec4(final_color, 1.0);
 }
