@@ -22,8 +22,4 @@ void main() {
 
     ModelPos    = gl_Vertex.xyz;
     ModelNormal = normalize(gl_Normal);
-
-    vec3 ModelTangent = normalize(at_tangent.xyz);
-    vec3 Bitangent = normalize(cross(ModelNormal, ModelTangent));
-    UVs = vec2(dot(ModelPos, ModelTangent), dot(ModelPos, Bitangent));
 }

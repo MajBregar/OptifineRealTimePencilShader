@@ -18,6 +18,7 @@ vec2 get_displacement(vec2 uv, float layer) {
 }
 
 float get_displaced_fragment_contour_color(vec2 uv, vec2 face_uv){
+
     vec2 raw_displacement_1 = get_displacement(uv, 0.0);
     vec2 raw_displacement_2 = get_displacement(uv, 1.0);
     vec2 raw_displacement_3 = get_displacement(uv, 2.0);
@@ -53,9 +54,7 @@ vec2 level_to_uv_offset(float light_level) {
 }
 
 float sample_pencil_shading(float light_level, vec2 face_uv) {
-
-    //float bias = 0.0;
-    //light_level = clamp(light_level + bias, 0.0, 1.0);
+    face_uv = fract(face_uv);
 
     vec2 layer_uv_shift = level_to_uv_offset(light_level);
     vec2 layer_uv_adjust = vec2(1.0 / TILE_GRID_SIZE, 1.0 / TILE_GRID_SIZE);
@@ -89,28 +88,18 @@ void main() {
 
     float depth_raw = texture2D(DEPTH_BUFFER_ALL, TexCoords).r;
     vec3 world_normal = texture2D(MODEL_NORMALS, TexCoords).rgb;
-    bool hand_shading = false;
-    if (world_normal.x > 1.0) {
-        world_normal -= HAND_NORMAL_OFFSET;
-        hand_shading = true;
-    }
-    vec3 model_pos = texture2D(MODEL_POSITIONS, TexCoords).rgb;
-    vec3 world_pos = model_pos + cameraPosition;
     vec3 view_normal = normalize(mat3(gbufferModelView) * world_normal);
-    
-    vec2 face_uv;
-    if (hand_shading){
-        face_uv = abs(texture2D(TANGENT_SPACE_UVS, TexCoords).xy);        
-    } else {
-        face_uv = get_block_face_tangent_space_uv(world_pos, world_normal);
-    }
-     
+
+    int material = get_id(TexCoords);
+    vec2 face_uv = texture2D(TANGENT_SPACE_UVS, TexCoords).xy;        
 
     float contour_color = get_displaced_fragment_contour_color(TexCoords, face_uv);
 
     float sun_angle_block = max(dot(view_normal, normalize(sunPosition)), 0.0);
-    float sun_angle_world = max(dot(world_y_normal, normalize(mat3(gbufferModelViewInverse) * sunPosition)), 0.0);
-    sun_angle_world = sun_angle_world == 0.0 ? 0.0 : clamp(sun_angle_world, 0.3, 0.6);
+
+    float sun_brightness = 1.3;
+    float sun_angle_world = max(dot(world_y_normal, normalize(mat3(gbufferModelViewInverse) * sunPosition)), 0.0) * sun_brightness;
+
     float shadow = getSoftShadow(TexCoords, get_shadow_map_clip_pos(TexCoords, depth_raw)).r;
     float sun_light = remap_sun_light_level(min(sun_angle_block, sun_angle_world) * shadow);
 
@@ -119,7 +108,7 @@ void main() {
     float perceptual_b_sky = perceptual_brightness.y;
 
     float light_color = 0.0;
-    if (hand_shading) {
+    if (material >= HAND_HOLD_IDS) {
         light_color = perceptual_b_sky * sun_angle_world + perceptual_b_block + sun_light + AMBIENT_LIGHT;
     } else {
         vec2 lightmap_light = get_lightmap_light(TexCoords);
@@ -131,17 +120,12 @@ void main() {
     float shading_color = is_sky(TexCoords) ? 1.0 : sample_pencil_shading(light_color, face_uv);
     float final_color = pencil_blend_function(min(contour_color, shading_color), contour_color, CONTOUR_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
 
-    // Suppress block influence in bright environments
-    float weight = clamp(1.0 - perceptual_b_sky, 0.0, 1.0);  // near 1 in caves, near 0 outdoors
+    float weight = clamp(1.0 - perceptual_b_sky, 0.0, 1.0);
     float adjusted_block = perceptual_b_block * weight;
-
     float contrast_adjustment = (adjusted_block + perceptual_b_sky) * 0.06;
     
+    
     vec3 output_color = vec3(clamp(final_color - contrast_adjustment, 0.0, 1.0));
-
-
-    //vec3 c = texture2D(colortex4, TexCoords).rgb;
-
 
     /* RENDERTARGETS:4 */   
     gl_FragData[0] = vec4(output_color, 1.0);

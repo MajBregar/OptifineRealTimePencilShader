@@ -55,6 +55,10 @@ uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 uniform int entityId;
 uniform int blockEntityId;
+uniform int heldItemId;
+uniform ivec2 atlasSize;
+uniform vec4 spriteBounds;
+
 
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferModelView;
@@ -62,5 +66,7 @@ uniform mat4 gbufferProjectionInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform mat3 normalMatrix;
+uniform mat4 textureMatrix;
+
 
 

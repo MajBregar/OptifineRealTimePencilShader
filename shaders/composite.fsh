@@ -10,7 +10,7 @@ varying vec2 TexCoords;
 
 vec3 hand_contour_detection(vec2 uv, vec3 center_world_normal) {
 
-    vec3 center_view_normal = normalize(mat3(gbufferModelView) * (center_world_normal - 10.0));
+    vec3 center_view_normal = normalize(mat3(gbufferModelView) * center_world_normal);
 
     for (int x = -1; x <= 1; x++){
         for (int y = -1; y <= 1; y++){
@@ -19,7 +19,7 @@ vec3 hand_contour_detection(vec2 uv, vec3 center_world_normal) {
             vec2 sample_uv = uv + vec2(x * texelSize.x, y * texelSize.y);
 
             //normal based cd
-            vec3 neighbour_view_normal = normalize(mat3(gbufferModelView) * (texture2D(colortex1, sample_uv).rgb - 10.0));
+            vec3 neighbour_view_normal = normalize(mat3(gbufferModelView) * texture2D(MODEL_NORMALS, sample_uv).rgb);
 
             float normal_similarity = dot(center_view_normal, neighbour_view_normal);
 
@@ -34,12 +34,11 @@ vec3 hand_contour_detection(vec2 uv, vec3 center_world_normal) {
 vec3 detect_contour(vec2 uv){
 
     vec3 center_world_normal = texture2D(MODEL_NORMALS, uv).rgb;
+    int center_material = get_id(TexCoords);
 
-
-    if (center_world_normal.x > 1.0) return hand_contour_detection(uv, center_world_normal);
+    if (center_material >= HAND_HOLD_IDS) return hand_contour_detection(uv, center_world_normal);
 
     vec3 center_world_position = texture2D(MODEL_POSITIONS, uv).rgb + cameraPosition;
-    int center_material = get_id(uv);
 
     
     for (int x = -1; x <= 1; x++){

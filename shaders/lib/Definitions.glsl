@@ -36,6 +36,8 @@
 #define TRAPDOORS 2002
 #define WATER 3001
 
+#define HAND_HOLD_IDS 30000
+
 #define ALBEDO_BUFFER colortex0
 #define MODEL_NORMALS colortex1
 #define MODEL_POSITIONS colortex2

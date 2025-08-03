@@ -3,7 +3,7 @@
 #define VERTEX_SHADER
 #include "lib/Inc.glsl"
 
-
+in vec4 at_tangent;
 in vec3 mc_Entity;
 
 varying vec2 TexCoords;
@@ -13,6 +13,7 @@ varying vec2 Lightmap;
 varying vec4 Color;
 varying float Material;
 
+varying vec2 UVs;
 
 void main() {
     gl_Position = ftransform();
@@ -27,5 +28,8 @@ void main() {
     Color = gl_Color;
 
     Material = mc_Entity.x;
+
+    int vid = (gl_VertexID % 4);
+    UVs = vec2(vid == 1 || vid == 2 ? 1 : 0, vid >> 1);
 
 }

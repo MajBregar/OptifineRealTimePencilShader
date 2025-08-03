@@ -35,6 +35,7 @@ void main() {
 
     for (int dx = -expansion_kernel_size; dx <= expansion_kernel_size; dx++) {
         for (int dy = -expansion_kernel_size; dy <= expansion_kernel_size; dy++) {
+            if (dx * dx + dy * dy > expansion_kernel_size * expansion_kernel_size) continue;
 
             ivec2 target = pixelCoord + ivec2(dx, dy);
             if (target.x < 0 || target.y < 0 || target.x >= resolution.x || target.y >= resolution.y) continue;
