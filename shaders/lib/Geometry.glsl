@@ -14,7 +14,7 @@ float normalize_to_view_dist(float depth){
 }
 
 bool is_sky(vec2 uv) {
-    float depth = texture2D(depthtex1, uv).r;
+    float depth = texture2D(DEPTH_BUFFER_TRANSPARENT, uv).r;
     return depth == 1.0;
 }
 

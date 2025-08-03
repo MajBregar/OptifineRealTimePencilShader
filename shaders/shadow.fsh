@@ -1,9 +1,8 @@
+#version 430
+#define SHADOW
+#define FRAGMENT_SHADER
+#include "lib/Inc.glsl"
 
-#version 330
-#include "lib/Uniforms.glsl"
-#include "lib/Geometry.glsl"
-#include "lib/Common.glsl"
-#include "lib/Shadows.glsl"
 
 varying vec2 TexCoords;
 varying vec4 Color;

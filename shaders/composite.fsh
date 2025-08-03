@@ -1,9 +1,7 @@
-#version 330
-#include "lib/Uniforms.glsl"
-#include "lib/Geometry.glsl"
-#include "lib/Common.glsl"
-#include "lib/Shadows.glsl"
-#include "lib/BlockHandling.glsl"
+#version 430
+#define COMPOSITE
+#define FRAGMENT_SHADER
+#include "lib/Inc.glsl"
 
 varying vec2 TexCoords;
 
@@ -35,12 +33,12 @@ vec3 hand_contour_detection(vec2 uv, vec3 center_world_normal) {
 
 vec3 detect_contour(vec2 uv){
 
-    vec3 center_world_normal = texture2D(colortex1, uv).rgb;
+    vec3 center_world_normal = texture2D(MODEL_NORMALS, uv).rgb;
 
 
     if (center_world_normal.x > 1.0) return hand_contour_detection(uv, center_world_normal);
 
-    vec3 center_world_position = texture2D(colortex2, uv).rgb + cameraPosition;
+    vec3 center_world_position = texture2D(MODEL_POSITIONS, uv).rgb + cameraPosition;
     int center_material = get_id(uv);
 
     
@@ -56,7 +54,7 @@ vec3 detect_contour(vec2 uv){
             if (allowed_self_contour_detection(center_material) == false) continue; 
 
             //normal based cd
-            vec3 neighbour_world_normal = texture2D(colortex1, sample_uv).rgb;
+            vec3 neighbour_world_normal = texture2D(MODEL_NORMALS, sample_uv).rgb;
             if (neighbour_world_normal.x > 1.0) continue;
 
             float normal_similarity = dot(center_world_normal, neighbour_world_normal);
@@ -64,7 +62,7 @@ vec3 detect_contour(vec2 uv){
             if (normal_similarity < CONTOUR_DETECTION_THRESHOLD_NORMALS) return vec3(1.0, sample_uv);        
 
             //positional based cd
-            vec3 neighbour_world_position = texture2D(colortex2, sample_uv).rgb + cameraPosition;
+            vec3 neighbour_world_position = texture2D(MODEL_POSITIONS, sample_uv).rgb + cameraPosition;
             vec3 pos_diff_normal = normalize(neighbour_world_position - center_world_position);
 
             float coplanarity = abs(dot(center_world_normal, pos_diff_normal));
@@ -76,17 +74,14 @@ vec3 detect_contour(vec2 uv){
 }
 
 void main() {
-    
+    float center_view_dist_depth = normalize_to_view_dist(texture2D(DEPTH_BUFFER_ALL, TexCoords).r);
+
     vec3 edge = detect_contour(TexCoords);
 
-    vec4 edge_data_output = vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 edge_data_output = vec4(0.0, 0.0, 0.0, center_view_dist_depth);
     if (edge.r == 1.0) {
-        float fragment_depth_raw = texture2D(depthtex0, TexCoords).r;
-        float neighbour_depth_raw = texture2D(depthtex0, edge.yz).r;
-        float view_dist_depth = normalize_to_view_dist(min(fragment_depth_raw, neighbour_depth_raw));
-
-
-        edge_data_output = vec4(1.0, 1.0, 1.0, view_dist_depth);
+        float neighbour_view_dist_depth = normalize_to_view_dist(texture2D(DEPTH_BUFFER_ALL, edge.yz).r);
+        edge_data_output = vec4(1.0, 1.0, 1.0, min(center_view_dist_depth, neighbour_view_dist_depth));
     }
 
     /* RENDERTARGETS:4 */

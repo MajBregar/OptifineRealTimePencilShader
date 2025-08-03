@@ -1,8 +1,8 @@
-#version 330
-#include "lib/Uniforms.glsl"
-#include "lib/Geometry.glsl"
-#include "lib/Common.glsl"
-#include "lib/Shadows.glsl"
+#version 430
+#define SHADOW
+#define VERTEX_SHADER
+#include "lib/Inc.glsl"
+
 
 varying vec2 TexCoords;
 varying vec4 Color;

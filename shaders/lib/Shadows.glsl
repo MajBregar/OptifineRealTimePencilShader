@@ -113,6 +113,6 @@ float remap_sun_light_level(float raw_light){
 
 
 vec2 get_lightmap_light(vec2 uv){
-  vec2 lightmap_levels = texture2D(colortex3, uv).rg;
+  vec2 lightmap_levels = texture2D(LIGHTMAP, uv).rg;
   return vec2(remap_sky_light_level(lightmap_levels.g), remap_block_light_level(lightmap_levels.r));
 }

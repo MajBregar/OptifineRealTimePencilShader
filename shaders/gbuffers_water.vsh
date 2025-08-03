@@ -1,6 +1,7 @@
-#version 330
-#include "lib/Uniforms.glsl"
-#include "lib/Common.glsl"
+#version 430
+#define GBUFFERS
+#define VERTEX_SHADER
+#include "lib/Inc.glsl"
 
 in vec3 mc_Entity;
 

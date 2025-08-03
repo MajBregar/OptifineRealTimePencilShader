@@ -1,8 +1,7 @@
-#version 330
-#include "lib/Uniforms.glsl"
-#include "lib/Geometry.glsl"
-#include "lib/Common.glsl"
-#include "lib/Shadows.glsl"
+#version 430
+#define GBUFFERS
+#define FRAGMENT_SHADER
+#include "lib/Inc.glsl"
 
 
 varying vec2 TexCoords;
@@ -15,7 +14,7 @@ void main(){
     vec4 default_color = texture2D(texture, TexCoords) * Color;
     float e = float(entityId);
 
-    /* RENDERTARGETS:0,1,2,9*/
+    /* RENDERTARGETS:0,1,2,10*/
     gl_FragData[0] = default_color;
     gl_FragData[1] = vec4(ModelNormal,      1.0);
     gl_FragData[2] = vec4(ModelPos,         1.0);

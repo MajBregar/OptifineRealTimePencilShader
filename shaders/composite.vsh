@@ -1,4 +1,8 @@
-#version 330
+#version 430
+#define COMPOSITE
+#define VERTEX_SHADER
+#include "lib/Inc.glsl"
+
 
 varying vec2 TexCoords;
 

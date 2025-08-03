@@ -1,9 +1,8 @@
-#version 330
+#version 430
+#define GBUFFERS
+#define VERTEX_SHADER
+#include "lib/Inc.glsl"
 
-#include "lib/Uniforms.glsl"
-#include "lib/Geometry.glsl"
-#include "lib/Common.glsl"
-#include "lib/Shadows.glsl"
 
 in vec4 at_tangent;
 
