@@ -54,10 +54,11 @@ uniform ivec2 eyeBrightnessSmooth;
 uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 uniform int entityId;
-uniform int blockEntityId;
 uniform int heldItemId;
-uniform ivec2 atlasSize;
-uniform vec4 spriteBounds;
+uniform int worldTime;
+uniform float aspectRatio;
+
+
 
 
 uniform mat4 gbufferModelViewInverse;

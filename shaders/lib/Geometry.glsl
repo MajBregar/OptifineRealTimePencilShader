@@ -37,3 +37,58 @@ vec2 rotate_and_mirror_uv(vec2 uv, float ang_rad){
     return mirror_uv(rotated);
 }
 
+vec2 get_skybox_uv(vec2 screen_uv){
+    vec2 NDC = screen_uv * 2.0 - 1.0;
+    NDC.x *= aspectRatio;
+
+    vec3 cubemap_center = SKY_CUBEMAP_DIST * floor(cameraPosition / SKY_CUBEMAP_DIST + 0.5);
+    vec3 ray_view = normalize(vec3(NDC, -1.0));
+    vec3 ray_world = normalize((gbufferModelViewInverse * vec4(ray_view, 0.0)).xyz);
+
+    //2 y planes
+    for (int dir = -1; dir <= 1; dir += 2) {
+        if (abs(ray_world.y) <= 0.0001) continue;
+
+        float t = (SKY_CUBEMAP_DIST * dir) / ray_world.y;
+        vec3 hit = cubemap_center + ray_world * t;
+
+        if (abs(hit.x - cubemap_center.x) <= SKY_CUBEMAP_DIST && abs(hit.z - cubemap_center.z) <= SKY_CUBEMAP_DIST) return fract(hit.xz * SKY_CUBEMAP_TILE_SIZE);
+    }
+
+    //2 z planes
+    for (int dir = -1; dir <= 1; dir += 2) {
+        if (abs(ray_world.z) <= 0.0001) continue;
+
+        float t = (SKY_CUBEMAP_DIST * dir) / ray_world.z;
+        vec3 hit = cubemap_center + ray_world * t;
+
+        if (abs(hit.x - cubemap_center.x) <= SKY_CUBEMAP_DIST && abs(hit.y - cubemap_center.y) <= SKY_CUBEMAP_DIST) return fract(hit.xy * SKY_CUBEMAP_TILE_SIZE);
+    }
+
+    //2 x planes
+    for (int dir = -1; dir <= 1; dir += 2) {
+        if (abs(ray_world.x) <= 0.0001) continue;
+
+        float t = (SKY_CUBEMAP_DIST * dir) / ray_world.x;
+        vec3 hit = cubemap_center + ray_world * t;
+
+        if (abs(hit.y - cubemap_center.y) <= SKY_CUBEMAP_DIST && abs(hit.z - cubemap_center.z) <= SKY_CUBEMAP_DIST) return fract(hit.zy * SKY_CUBEMAP_TILE_SIZE);
+    }
+
+    return vec2(0.0);
+}
+
+vec2 get_skysphere_uv(vec2 screen_uv) {
+    vec2 NDC = screen_uv * 2.0 - 1.0;
+    NDC.x *= aspectRatio;
+
+    vec3 cubemap_center = SKY_CUBEMAP_DIST * floor(cameraPosition / SKY_CUBEMAP_DIST + 0.5);
+    vec3 ray_view = normalize(vec3(NDC, -1.0));
+    vec3 ray_world = normalize((gbufferModelViewInverse * vec4(ray_view, 0.0)).xyz);
+
+    // For spherical UV projection, compute UVs from direction
+    float u = atan(ray_world.z, ray_world.x) / (2.0 * 3.14159265) + 0.5;
+    float v = acos(clamp(ray_world.y, -1.0, 1.0)) / 3.14159265;
+
+    return fract(vec2(u, v) * SKY_CUBEMAP_TILE_SIZE);
+}

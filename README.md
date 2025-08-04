@@ -14,7 +14,10 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 
 
 ### HIGH PRIO
-
+- handle shadowmap noise better + rewrite shadow code
+- antialiasing
+- dot artifact filtring in comp shader
+- handle separate AO
 
 ### OPTIMIZATIONS
 - refactor all code - ESPECIALLY SHADOW MAP CODE
