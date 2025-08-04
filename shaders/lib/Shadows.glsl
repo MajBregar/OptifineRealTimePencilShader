@@ -49,12 +49,6 @@ vec3 getShadow(vec3 shadowScreenPos){
   return shadowColor.rgb * (1.0 - shadowColor.a);
 }
 
-vec4 getNoise(vec2 coord){
-  ivec2 screenCoord = ivec2(coord * vec2(viewWidth, viewHeight));
-  ivec2 noiseCoord = screenCoord % noiseTextureResolution;
-  return texelFetch(noisetex, noiseCoord, 0);
-}
-
 vec4 get_shadow_map_clip_pos(vec2 tex_uv, float depth){
     vec3 NDCPos = vec3(tex_uv, depth) * 2.0 - 1.0;
     vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
@@ -65,11 +59,11 @@ vec4 get_shadow_map_clip_pos(vec2 tex_uv, float depth){
 }
 
 
-vec3 getSoftShadow(vec2 uv, vec4 shadowClipPos){
+vec3 getSoftShadow(vec2 uv, vec4 shadowClipPos, vec2 noise_sample_uv){
   const float range = SHADOW_SOFTNESS / 2.0;
   const float increment = range / SHADOW_QUALITY;
 
-  float noise = getNoise(uv).r;
+  float noise = texture2D(noisetex, noise_sample_uv * 32.0).r; 
 
   float theta = noise * radians(360.0);
   float cosTheta = cos(theta);
@@ -109,8 +103,6 @@ float remap_block_light_level(float raw_light){
 float remap_sun_light_level(float raw_light){
     return 1.0 * pow(raw_light, 1.0);
 }
-
-
 
 vec2 get_lightmap_light(vec2 uv){
   vec2 lightmap_levels = texture2D(LIGHTMAP, uv).rg;

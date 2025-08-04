@@ -3,7 +3,6 @@
 #define VERTEX_SHADER
 #include "lib/Inc.glsl"
 
-in vec4 at_tangent;
 in vec3 mc_Entity;
 
 varying vec2 TexCoords;

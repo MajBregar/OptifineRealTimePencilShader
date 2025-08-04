@@ -15,13 +15,14 @@ varying vec2 UVs;
 void main(){
     vec4 default_color = texture2D(texture, TexCoords) * Color;
 
+    float mat = Material > 0.0 ? Material : float(BLOCKS_DEFAULT);
 
     /* RENDERTARGETS:0,1,2,3,10,9*/
     gl_FragData[0] = default_color;
     gl_FragData[1] = vec4(ModelNormal, 1.0);
     gl_FragData[2] = vec4(ModelPos, 1.0);
     gl_FragData[3] = vec4(Lightmap, 0.0, 1.0);
-    gl_FragData[4] = vec4(Material, 0.0, 0.0, 1.0);
+    gl_FragData[4] = vec4(mat, 0.0, 0.0, 1.0);
     gl_FragData[5] = vec4(UVs, 0.0, 1.0);
 
 }

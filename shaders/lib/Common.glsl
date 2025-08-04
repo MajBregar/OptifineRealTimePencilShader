@@ -8,6 +8,7 @@ const vec3 forward_facing_vector = vec3(0.0, 0.0, 1.0);
 vec2 texelSize = vec2(1.0 / viewWidth, 1.0 / viewHeight);
 const float pi = 3.1415927;
 
+vec2 crosshatching_tile_size_uv = vec2(1.0 / GRID_SIZE, 1.0 / GRID_SIZE);
 
 float pencil_blend_function(float ct, float cs, float local_UB, float local_UW, float local_THR) {
     float ca = ct * (1.0 - cs);
