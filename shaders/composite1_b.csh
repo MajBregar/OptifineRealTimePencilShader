@@ -1,7 +1,7 @@
 #version 430
 #define COMPOSITE
 #define COMPUTE_SHADER
-#include "../lib/Inc.glsl"
+#include "lib/Inc.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
 
