@@ -4,21 +4,22 @@
 #include "lib/Inc.glsl"
 
 
-in vec4 at_tangent;
 
 varying vec2 TexCoords;
 varying vec3 ModelPos;
 varying vec3 ModelNormal;
-varying vec2 Lightmap;
 varying vec4 Color;
 
-varying vec2 UVs;
+varying vec2 Lightmap;
+
 
 void main() {
     gl_Position = ftransform();
     TexCoords = gl_MultiTexCoord0.st;
     Color = gl_Color;
 
+    Lightmap = mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.st;
+    Lightmap = (Lightmap * 31.05 / 32.0) - (1.05 / 16.0);
 
     ModelPos    = gl_Vertex.xyz;
     ModelNormal = normalize(gl_Normal);
