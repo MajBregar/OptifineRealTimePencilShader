@@ -1,4 +1,18 @@
 
+vec3 apply_projection_matrix_homogenous(mat4 matrix, vec3 pos){
+  vec4 hom = matrix * vec4(pos, 1.0);
+  return hom.xyz / hom.w;
+}
+
+vec3 screen_to_view_space(vec3 fragment_screen_space) {
+    vec3 NDC = fragment_screen_space * 2.0 - 1.0;
+    vec4 deprojected_pos = gbufferProjectionInverse * vec4(NDC, 1.0);
+    return deprojected_pos.xyz / deprojected_pos.w;
+}
+
+vec3 view_to_player_feet_space(vec3 view_space_pos) {
+    return mat3(gbufferModelViewInverse) * view_space_pos + gbufferModelViewInverse[3].xyz;
+}
 
 float linearize_depth(float d) {
   float z_n = d * 2.0 - 1.0;
@@ -37,7 +51,10 @@ vec2 rotate_and_mirror_uv(vec2 uv, float ang_rad){
     return mirror_uv(rotated);
 }
 
-vec2 get_skybox_uv(vec2 screen_uv){
+vec2 get_skybox_uv(vec2 screen_fragcoords){
+
+    vec2 screen_uv = screen_fragcoords / vec2(viewWidth, viewHeight);
+
     vec2 NDC = screen_uv * 2.0 - 1.0;
     NDC.x *= aspectRatio;
 

@@ -12,8 +12,6 @@ void main() {
     vec3 tint = (vec3(float(219), float(187), float(149)) / 256) * 1.0;
 
     vec3 shading = texture2D(SHADING_BUFFER_MAIN, TexCoords).rgb;
-    float depth_raw = texture2D(DEPTH_BUFFER_ALL, TexCoords).r;
-
     vec2 paper_sample_uv = texture2D(TANGENT_SPACE_UVS, TexCoords).xy;
     vec3 paper_texture = texture2D(PAPER_TEXTURE, paper_sample_uv).rgb;
 
@@ -21,7 +19,14 @@ void main() {
     //vec3 final_color = (texture_blend * default_albedo + (1.0 - texture_blend) * paper_texture) * shading;
     vec3 final_color = tint * shading * paper_texture; 
 
-    vec3 debug_uv = vec3(paper_sample_uv, 0.0);
+
+    //shadow testing
+
+
+    float light = texture2D(colortex3, TexCoords).r;
+    vec3 debug = vec3(light);
+
+    //vec3 debug = default_albedo * shadow;
 
     gl_FragColor = vec4(final_color, 1.0);
 }

@@ -22,6 +22,7 @@ const bool shadowtex0Nearest = true;
 const bool shadowtex1Nearest = true;
 const bool shadowcolor0Nearest = true;
 
+
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
@@ -57,15 +58,17 @@ uniform int entityId;
 uniform int heldItemId;
 uniform int worldTime;
 uniform float aspectRatio;
-
-
+uniform float sunAngle;
+uniform int frameCounter;
 
 
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 shadowModelView;
+uniform mat4 shadowModelViewInverse;
 uniform mat4 shadowProjection;
+uniform mat4 shadowProjectionInverse;
 uniform mat3 normalMatrix;
 uniform mat4 textureMatrix;
 

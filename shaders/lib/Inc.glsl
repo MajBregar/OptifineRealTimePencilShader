@@ -5,6 +5,7 @@
     #include "Geometry.glsl"
     #include "Common.glsl"
     #include "Shadows.glsl"
+    #include "Lighting.glsl"
     #include "MaterialHandling.glsl"
     #include "ContourDetection.glsl"
     #include "ContourDisplacing.glsl"

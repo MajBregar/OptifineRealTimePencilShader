@@ -8,21 +8,10 @@ varying vec2 TexCoords;
 void main() {
 
     int material = get_id(TexCoords);
-    
-    float depth_raw = texture2D(DEPTH_BUFFER_ALL, TexCoords).r;
-    vec3 world_normal = texture2D(MODEL_NORMALS, TexCoords).rgb;
-    vec3 view_normal = normalize(mat3(gbufferModelView) * world_normal);
     vec2 face_uv = texture2D(TANGENT_SPACE_UVS, TexCoords).xy;     
-
-
     float contour_color = get_displaced_fragment_contour_color(TexCoords, face_uv);
+    float lighting_color = texture2D(colortex3, TexCoords).r;
 
-    //LIGHTING CALCULATIONS
-    float sun_angle_block = max(dot(view_normal, normalize(sunPosition)), 0.0);
-    float sun_brightness = 1.3;
-    float sun_angle_world = max(dot(world_y_normal, normalize(mat3(gbufferModelViewInverse) * sunPosition)), 0.0) * sun_brightness;
-    
-    //P
     vec2 perceptual_brightness = vec2(eyeBrightnessSmooth) / 240.0;
     float perceptual_b_block = perceptual_brightness.x;
     float perceptual_b_sky = perceptual_brightness.y;
@@ -31,42 +20,21 @@ void main() {
     float contrast_adjustment = (adjusted_block + perceptual_b_sky) * 0.06;
 
     if (material == SKY){
-        vec2 sky_uv = get_skybox_uv(TexCoords);
+        float final_sky_color = pencil_blend_function(min(contour_color, lighting_color), contour_color, CONTOUR_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
 
-        float sky_light_level = clamp(sun_angle_world * 1.3, 0.05, 1.0);
-        float sky_shading_color = clamp(sky_light_level - contrast_adjustment, 0.0, 1.0);
+        vec3 output_color = vec3(clamp(final_sky_color - contrast_adjustment, 0.0, 1.0));
 
-        //float final_sky_color = pencil_blend_function(min(contour_color, sky_shading_color), contour_color, CONTOUR_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
-        vec3 sky_shading = vec3(sky_shading_color);
-
-        /* RENDERTARGETS:4,9 */
-        gl_FragData[0] = vec4(sky_shading, 1.0);
-        gl_FragData[1] = vec4(sky_uv, 0.0, 1.0);
+        /* RENDERTARGETS:4 */
+        gl_FragData[0] = vec4(vec3(final_sky_color), 1.0);
         return;
     }
 
-
-    float shadow = getSoftShadow(TexCoords, get_shadow_map_clip_pos(TexCoords, depth_raw), face_uv).r;
-
-    float sun_light = remap_sun_light_level(min(sun_angle_block, sun_angle_world) * shadow);
-
-    vec2 lightmap_light = get_lightmap_light(TexCoords);
-
-    float light_color = clamp(lightmap_light.x * sun_angle_world + lightmap_light.y + sun_light + AMBIENT_LIGHT, 0.0, 1.0);
-    
     //TEXTURING
-    float shading_color = sample_pencil_shading(light_color, face_uv);
+    float shading_color = sample_pencil_shading(lighting_color, face_uv);
     float final_color = pencil_blend_function(min(contour_color, shading_color), contour_color, CONTOUR_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
 
-    //SKY TEXTURING
-    
-
-    //PERCEPTUAL DARKNESS ADJUSTMENT
-
-    
     vec3 output_color = vec3(clamp(final_color - contrast_adjustment, 0.0, 1.0));
 
-    /* RENDERTARGETS:4,9 */   
+    /* RENDERTARGETS:4 */   
     gl_FragData[0] = vec4(output_color, 1.0);
-    gl_FragData[1] = vec4(face_uv, 0.0, 1.0);
 }

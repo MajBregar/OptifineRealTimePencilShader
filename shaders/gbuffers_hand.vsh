@@ -11,6 +11,7 @@ varying vec3 ModelNormal;
 varying vec4 Color;
 
 varying vec2 Lightmap;
+varying vec3 ViewNormal;
 
 
 void main() {
@@ -23,4 +24,7 @@ void main() {
 
     ModelPos    = gl_Vertex.xyz;
     ModelNormal = normalize(gl_Normal);
+
+    ViewNormal = normalize(gl_NormalMatrix * gl_Normal);
 }
+

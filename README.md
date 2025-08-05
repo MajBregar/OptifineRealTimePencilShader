@@ -18,6 +18,7 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 - antialiasing
 - dot artifact filtring in comp shader
 - handle separate AO
+- shadow map weird with roses
 
 ### OPTIMIZATIONS
 - refactor all code - ESPECIALLY SHADOW MAP CODE
@@ -31,3 +32,6 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 
 - pipeline layout: gbuffers opaque -> deferred -> gbuffers transluscent -> composite -> final
 - shaders.properties, block.properties
+- player feet space is locked in head and eye space is relative to camera
+- gbuffersModelView is just the view matrix
+- far isnt the far plane its the render distance in blocks

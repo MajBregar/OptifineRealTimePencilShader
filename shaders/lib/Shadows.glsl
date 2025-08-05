@@ -1,110 +1,69 @@
 
 
-vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
-  vec4 homPos = projectionMatrix * vec4(position, 1.0);
-  return homPos.xyz / homPos.w;
+vec3 distort_shadow_clip_pos(vec3 shadow_ndc) {
+    float distb = length(shadow_ndc.xy);
+    float distortFactor = distb * SHADOW_BIAS + (1.0 - SHADOW_BIAS);
+
+    shadow_ndc.xy /= distortFactor;
+    shadow_ndc.z *= SHADOW_Z_COMPRESSION; 
+    return shadow_ndc;
 }
 
-vec3 distortShadowClipPos(vec3 shadowClipPos){
-  float distortionFactor = length(shadowClipPos.xy); // distance from the player in shadow clip space
-  distortionFactor += 0.1;
+vec4 get_shadow_map_clip_hom_position_biased(vec3 fragcords){
+    vec3 fragment_screen_pos = vec3(fragcords.xy / vec2(viewWidth, viewHeight), fragcords.z);
+    vec3 fragment_view_pos = screen_to_view_space(fragment_screen_pos);
+    vec3 fragment_player_feet_pos = view_to_player_feet_space(fragment_view_pos);
 
-  shadowClipPos.xy /= distortionFactor;
-  shadowClipPos.z *= 0.5; // increases shadow distance on the Z axis, which helps when the sun is very low in the sky
-  return shadowClipPos;
-}
-
-
-vec3 getShadow(vec3 shadowScreenPos){
-  float transparentShadow = step(shadowScreenPos.z, texture(shadowtex0, shadowScreenPos.xy).r); // sample the shadow map containing everything
-
-  /*
-  note that a value of 1.0 means 100% of sunlight is getting through
-  not that there is 100% shadowing
-  */
-
-  if(transparentShadow == 1.0){
-    /*
-    since this shadow map contains everything,
-    there is no shadow at all, so we return full sunlight
-    */
-    return vec3(1.0);
-  }
-
-  float opaqueShadow = step(shadowScreenPos.z, texture(shadowtex1, shadowScreenPos.xy).r); // sample the shadow map containing only opaque stuff
-
-  if(opaqueShadow == 0.0){
-    // there is a shadow cast by something opaque, so we return no sunlight
-    return vec3(0.0);
-  }
-
-  // contains the color and alpha (transparency) of the thing casting a shadow
-  vec4 shadowColor = texture(shadowcolor0, shadowScreenPos.xy);
-
-
-  /*
-  we use 1 - the alpha to get how much light is let through
-  and multiply that light by the color of the caster
-  */
-  return shadowColor.rgb * (1.0 - shadowColor.a);
-}
-
-vec4 get_shadow_map_clip_pos(vec2 tex_uv, float depth){
-    vec3 NDCPos = vec3(tex_uv, depth) * 2.0 - 1.0;
-    vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
-    vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-    vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
-
-    return shadowProjection * vec4(shadowViewPos, 1.0);
+    float dist_squared = dot(fragment_player_feet_pos, fragment_player_feet_pos);
+    float displacement_bias = 0.07 + 0.0003 * dist_squared;
+    vec3 displaced_shadow_sample_feet_pos = fragment_player_feet_pos + vec3(displacement_bias);
+    
+    vec4 shadow_view_pos_homogenous = (shadowModelView * vec4(displaced_shadow_sample_feet_pos, 1.0));
+    vec4 shadow_clip_homogenous = shadowProjection * shadow_view_pos_homogenous;
+    return shadow_clip_homogenous;
 }
 
 
-vec3 getSoftShadow(vec2 uv, vec4 shadowClipPos, vec2 noise_sample_uv){
-  const float range = SHADOW_SOFTNESS / 2.0;
-  const float increment = range / SHADOW_QUALITY;
+vec3 get_shadow(vec3 shadow_map_screen){
+  float shadow_all = step(shadow_map_screen.z, texture2D(shadowtex0, shadow_map_screen.xy).r);
+
+  if(shadow_all == 1.0) return vec3(1.0); //no shadow
+
+  float shadow_no_transparent = step(shadow_map_screen.z, texture2D(shadowtex1, shadow_map_screen.xy).r);
+
+  if(shadow_no_transparent == 0.0) return vec3(0.0); //normal shadow
+
+  vec4 shadowColor = texture2D(shadowcolor0, shadow_map_screen.xy);
+  return vec3(1.0) * (1.0 - shadowColor.a); //disabled colored shadows for now
+}
+
+
+vec3 get_shadow_box_blur(vec3 fragcords, vec2 noise_sample_uv){
+
+  vec4 center_shadow_map_clip_pos = get_shadow_map_clip_hom_position_biased(fragcords);
 
   float noise = texture2D(noisetex, noise_sample_uv * 32.0).r; 
-
   float theta = noise * radians(360.0);
   float cosTheta = cos(theta);
   float sinTheta = sin(theta);
-
   mat2 rotation = mat2(cosTheta, -sinTheta, sinTheta, cosTheta);
 
-  vec3 shadowAccum = vec3(0.0);
+  vec3 shadow_sum = vec3(0.0);
   int samples = 0;
 
-  for(float x = -range; x <= range; x += increment){
-    for (float y = -range; y <= range; y+= increment){
+  for(float x = -BOX_BLUR_RANGE; x <= BOX_BLUR_RANGE; x += BOX_BLUR_INCREMENT){
+    for (float y = -BOX_BLUR_RANGE; y <= BOX_BLUR_RANGE; y+= BOX_BLUR_INCREMENT){
+
       vec2 offset = rotation * vec2(x, y) / shadowMapResolution;
-      vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0); // add offset
-      offsetShadowClipPos.z -= 0.00001; // apply bias
-      offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz); // apply distortion
-      vec3 shadowNDCPos = offsetShadowClipPos.xyz / offsetShadowClipPos.w; // convert to NDC space
-      vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5; // convert to screen space
-      shadowAccum += getShadow(shadowScreenPos); // take shadow sample
+      vec4 shadow_clip = center_shadow_map_clip_pos + vec4(offset, 0.0, 0.0);
+
+      vec3 shadow_ndc = shadow_clip.xyz / shadow_clip.w;
+      vec3 distorted_screen_pos = distort_shadow_clip_pos(shadow_ndc) * 0.5 + 0.5;
+
+      shadow_sum += get_shadow(distorted_screen_pos);
       samples++;
     }
   }
 
-  return shadowAccum / float(samples); // divide sum by count, getting average shadow
-}
-
-float remap_sky_light_level(float raw_light){
-
-    float x = 0.0;
-    return 1.0 * pow(raw_light, 1.0) * (1.0 - 2 * x) + x;
-}
-
-float remap_block_light_level(float raw_light){
-    return 1.1 * pow(raw_light, 2.2);
-}
-
-float remap_sun_light_level(float raw_light){
-    return 1.0 * pow(raw_light, 1.0);
-}
-
-vec2 get_lightmap_light(vec2 uv){
-  vec2 lightmap_levels = texture2D(LIGHTMAP, uv).rg;
-  return vec2(remap_sky_light_level(lightmap_levels.g), remap_block_light_level(lightmap_levels.r));
+  return shadow_sum / float(samples);
 }
