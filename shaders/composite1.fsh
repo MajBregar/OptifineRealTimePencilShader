@@ -30,7 +30,7 @@ void main() {
     }
 
     //TEXTURING
-    float shading_color = sample_pencil_shading(lighting_color, face_uv);
+    float shading_color = sample_pencil_shading(lighting_color, face_uv, TexCoords);
     float final_color = pencil_blend_function(min(contour_color, shading_color), contour_color, CONTOUR_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
 
     vec3 output_color = vec3(clamp(final_color - contrast_adjustment, 0.0, 1.0));

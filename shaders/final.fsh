@@ -22,10 +22,6 @@ void main() {
 
     //shadow testing
 
-
-    float light = texture2D(colortex3, TexCoords).r;
-    vec3 debug = vec3(light);
-
     //vec3 debug = default_albedo * shadow;
 
     gl_FragColor = vec4(final_color, 1.0);

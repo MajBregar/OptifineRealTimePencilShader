@@ -109,3 +109,15 @@ vec2 get_skysphere_uv(vec2 screen_uv) {
 
     return fract(vec2(u, v) * SKY_CUBEMAP_TILE_SIZE);
 }
+
+
+
+float calculate_mip_level(vec3 frags, vec3 view_normal){
+    vec3 fragment_screen_pos = vec3(frags.xy / vec2(viewWidth, viewHeight), frags.z);
+    vec3 view_dir = normalize(-screen_to_view_space(fragment_screen_pos));
+    float depth = frags.z;
+
+    float d = 1.0 - pow(abs(dot(view_dir, view_normal)), 0.25);
+    //add a depth based component here too
+    return d;
+}
