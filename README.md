@@ -23,6 +23,7 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 ### OPTIMIZATIONS
 - refactor all code - ESPECIALLY SHADOW MAP CODE
 - alpha culling
+- better mipmap storage
 
 
 

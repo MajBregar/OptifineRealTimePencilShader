@@ -1,9 +1,10 @@
 #include "Definitions.glsl"
+#include "Uniforms.glsl"
 
 #if defined(VERTEX_SHADER) || defined(FRAGMENT_SHADER)    
-    #include "Uniforms.glsl"
-    #include "Geometry.glsl"
     #include "Common.glsl"
+    #include "Geometry.glsl"
+    #include "Mipmaps.glsl"
     #include "Shadows.glsl"
     #include "Lighting.glsl"
     #include "MaterialHandling.glsl"
@@ -13,5 +14,4 @@
 #endif  
 
 #ifdef COMPUTE_SHADER 
-    #include "Uniforms.glsl"
 #endif

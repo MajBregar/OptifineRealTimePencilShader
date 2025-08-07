@@ -23,7 +23,7 @@ void main(){
     vec3 frags = gl_FragCoord.xyz;
 
     float lighting = process_lighting(frags, UVs, ViewNormal, Lightmap);
-    float mip_level = calculate_mip_level(frags, ViewNormal);
+    float mip_level = calculate_mip_level(UVs);
 
     /* RENDERTARGETS:0,1,2,3,10,9*/
     gl_FragData[0] = default_color;

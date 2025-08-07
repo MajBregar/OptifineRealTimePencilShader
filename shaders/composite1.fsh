@@ -31,10 +31,10 @@ void main() {
 
     //TEXTURING
     float shading_color = sample_pencil_shading(lighting_color, face_uv, TexCoords);
-    float final_color = pencil_blend_function(min(contour_color, shading_color), contour_color, CONTOUR_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
+    float final_color = pencil_blend_function(min(contour_color, shading_color), contour_color, 1.0, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
 
     vec3 output_color = vec3(clamp(final_color - contrast_adjustment, 0.0, 1.0));
-
+    
     /* RENDERTARGETS:4 */   
     gl_FragData[0] = vec4(output_color, 1.0);
 }
