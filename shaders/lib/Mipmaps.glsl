@@ -84,7 +84,7 @@ vec2 get_mipmap_uv(vec2 sample_uv, int mip_level){
     return clamp(mip_layer_texture_space_origin + sample_uv_scaled, 0.0, 1.0);
 }
 
-vec3 sample_mip_interpolated(sampler2D texture_sampler, vec2 sample_uv, vec2 screen_sample){
+vec3 sample_grayscale_mip_interpolated(sampler2D texture_sampler, vec2 sample_uv, vec2 screen_sample){
     sample_uv = sample_uv * 0.9999;
 
     vec3 mip_levels = read_mip_level(screen_sample);
@@ -92,7 +92,7 @@ vec3 sample_mip_interpolated(sampler2D texture_sampler, vec2 sample_uv, vec2 scr
     vec2 main_mip_sample_uv = get_mipmap_uv(sample_uv, int(mip_levels.x + 0.5));
     vec2 higher_mip_sample_uv = get_mipmap_uv(sample_uv, int(mip_levels.y + 0.5));
 
-    vec3 main_layer =   texture2D(texture_sampler, main_mip_sample_uv).rgb;
-    vec3 higher_layer = texture2D(texture_sampler, higher_mip_sample_uv).rgb;
-    return (1.0 - mip_levels.z) * main_layer + mip_levels.z * higher_layer;
+    float main_layer =   texture2D(texture_sampler, main_mip_sample_uv).r;
+    float higher_layer = texture2D(texture_sampler, higher_mip_sample_uv).r;
+    return vec3((1.0 - mip_levels.z) * main_layer + mip_levels.z * higher_layer);
 }

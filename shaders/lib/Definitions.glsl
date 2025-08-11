@@ -1,16 +1,15 @@
 //TEXTURE BUFFER ALIASES
 #define ALBEDO_BUFFER colortex0
-#define MODEL_NORMALS colortex1
-#define MODEL_POSITIONS colortex2
-#define LIGHTMAP colortex3
-#define SHADING_BUFFER_MAIN colortex4
-#define SHADING_BUFFER_AUX colortex5
-#define DISPLACEMENT_MAP colortex6
-#define CROSSHATCHING_TEXTURE colortex7
-#define PAPER_TEXTURE colortex8
-#define TANGENT_SPACE_UVS colortex9
-#define IDS colortex10
-#define DEBUG_BUFFER colortex11
+#define VIEW_NORMALS colortex1
+#define LIGHTMAP colortex2
+#define SHADING_BUFFER_MAIN colortex3
+#define SHADING_BUFFER_AUX colortex4
+#define DISPLACEMENT_MAP colortex5
+#define CROSSHATCHING_TEXTURE colortex6
+#define PAPER_TEXTURE colortex7
+#define TANGENT_SPACE_UVS colortex8
+#define IDS colortex9
+#define DEBUG_BUFFER colortex10
 
 #define DEPTH_BUFFER_ALL depthtex0
 #define DEPTH_BUFFER_TRANSPARENT depthtex1
@@ -43,7 +42,7 @@
 
 //SHADOWS
 #define SHADOW_VIEW_DIST 256.0
-#define SHADOW_Z_COMPRESSION 0.9
+#define SHADOW_Z_COMPRESSION 0.2
 #define SHADOW_BIAS (1.0 - 25.6 / SHADOW_VIEW_DIST)
 #define BOX_BLUR_RANGE (SHADOW_SOFTNESS / 2.0)
 #define BOX_BLUR_INCREMENT (BOX_BLUR_RANGE / SHADOW_QUALITY)

@@ -1,26 +1,30 @@
 /*
 const int colortex0Format = RGB16;
 const int colortex1Format = RGB16F;
-const int colortex2Format = RGB32F;
+const int colortex2Format = R16;
 const int colortex3Format = RG16;
-const int colortex4Format = RGBA16;
-const int colortex5Format = R32UI;
-const int colortex6Format = RG16;
-const int colortex7Format = RGB16;
+const int colortex4Format = R32UI;
+
+const int colortex5Format = RG16;
+const int colortex6Format = R16;
+const int colortex7Format = R16;
+
 const int colortex8Format = RGB16;
-const int colortex9Format = RGB16F;
-const int colortex10Format = R32F;
-const int colortex11Format = RGB16;
+const int colortex9Format = R32F;
+const int colortex10Format = RGB16;
 */
+
+const vec4 colortex4ClearColor = vec4(-3.4028235e+38,0.,0.,0.); //reset int depth compute buffer to 0xFF7FFFFF 
+
 
 const int shadowMapResolution = 2048;
 const int noiseTextureResolution = 128;
 const float sunPathRotation = 45.0;
 const float eyeBrightnessHalflife = 1.0;
-const vec4 colortex5ClearColor = vec4(-3.4028235e+38,0.,0.,0.); //reset int depth compute buffer to 0xFF7FFFFF 
 const bool shadowtex0Nearest = true;
 const bool shadowtex1Nearest = true;
 const bool shadowcolor0Nearest = true;
+const float ambientOcclusionLevel = 0.0;
 
 
 uniform sampler2D colortex0;
@@ -34,7 +38,6 @@ uniform sampler2D colortex7;
 uniform sampler2D colortex8;
 uniform sampler2D colortex9;
 uniform sampler2D colortex10;
-uniform sampler2D colortex11;
 
 uniform sampler2D texture;
 uniform sampler2D depthtex0;

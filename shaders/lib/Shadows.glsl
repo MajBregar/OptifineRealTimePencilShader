@@ -14,11 +14,18 @@ vec4 get_shadow_map_clip_hom_position_biased(vec3 fragcords, vec3 view_normal){
     vec3 fragment_view_pos = screen_to_view_space(fragment_screen_pos);
     vec3 fragment_player_feet_pos = view_to_player_feet_space(fragment_view_pos);
 
+
+    vec3 player_space_normal = normalize(view_to_player_feet_space(view_normal));
+
+    float sun_angle = 1.0 - abs(dot(view_normal, normalize(sunPosition)));
     float view_angle = 1.0 - abs(dot(view_normal, normalize(fragment_view_pos)));
     float dist_squared = dot(fragment_player_feet_pos, fragment_player_feet_pos);
-    float displacement_bias = 0.009 + 0.00003 * dist_squared + 0.001 * view_angle;
 
-    vec3 displaced_shadow_sample_feet_pos = fragment_player_feet_pos + vec3(displacement_bias);
+    float distance_bias = 0.05 * SHADOW_SOFTNESS + 0.0001 * dist_squared;
+    vec3 displacement_bias = player_space_normal * distance_bias;
+
+    vec3 displaced_shadow_sample_feet_pos = fragment_player_feet_pos + displacement_bias;
+
     vec4 shadow_view_pos_homogenous = (shadowModelView * vec4(displaced_shadow_sample_feet_pos, 1.0));
     vec4 shadow_clip_homogenous = shadowProjection * shadow_view_pos_homogenous;
     return shadow_clip_homogenous;
@@ -65,6 +72,6 @@ vec3 get_shadow_box_blur(vec3 fragcords, vec2 noise_sample_uv, vec3 view_normal)
       samples++;
     }
   }
-
+  
   return shadow_sum / float(samples);
 }

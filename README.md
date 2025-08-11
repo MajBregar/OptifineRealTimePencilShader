@@ -7,26 +7,14 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 - make/find paper normal map
 
 ### REALLY LOW PRIO
-- make transparent blocks texture correctly + WATER
 - make intuitive options
-- torches having circular lighting when placed
-- maybe a circle view distance that does not render anything beyond a certain depth?
-
 
 ### HIGH PRIO
-- handle shadowmap noise better + rewrite shadow code
-- antialiasing
 - dot artifact filtring in comp shader
-- handle separate AO
-- shadow map weird with roses
+- mip on UV map
 
 ### OPTIMIZATIONS
 - refactor all code - ESPECIALLY SHADOW MAP CODE
-- alpha culling
-- better mipmap storage
-
-
-
 
 
 ### mention in diploma

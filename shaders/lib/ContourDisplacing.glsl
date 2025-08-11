@@ -12,9 +12,9 @@ float get_displaced_fragment_contour_color(vec2 uv, vec2 face_uv){
     vec2 raw_displacement_2 = get_displacement(uv, 1.0);
     vec2 raw_displacement_3 = get_displacement(uv, 2.0);
 
-    float contour_displacement_falloff_1 = 1.0 - pow(texture2D(SHADING_BUFFER_MAIN, clamp(uv + raw_displacement_1, 0.0, 1.0)).a, CONTOUR_DISPLACEMENT_FALLOFF);
-    float contour_displacement_falloff_2 = 1.0 - pow(texture2D(SHADING_BUFFER_MAIN, clamp(uv + raw_displacement_2, 0.0, 1.0)).a, CONTOUR_DISPLACEMENT_FALLOFF);
-    float contour_displacement_falloff_3 = 1.0 - pow(texture2D(SHADING_BUFFER_MAIN, clamp(uv + raw_displacement_3, 0.0, 1.0)).a, CONTOUR_DISPLACEMENT_FALLOFF);
+    float contour_displacement_falloff_1 = 1.0 - pow(texture2D(SHADING_BUFFER_MAIN, clamp(uv + raw_displacement_1, 0.0, 1.0)).g, CONTOUR_DISPLACEMENT_FALLOFF);
+    float contour_displacement_falloff_2 = 1.0 - pow(texture2D(SHADING_BUFFER_MAIN, clamp(uv + raw_displacement_2, 0.0, 1.0)).g, CONTOUR_DISPLACEMENT_FALLOFF);
+    float contour_displacement_falloff_3 = 1.0 - pow(texture2D(SHADING_BUFFER_MAIN, clamp(uv + raw_displacement_3, 0.0, 1.0)).g, CONTOUR_DISPLACEMENT_FALLOFF);
 
     vec2 final_contour_displacement_1 = raw_displacement_1 * contour_displacement_falloff_1;
     vec2 final_contour_displacement_2 = raw_displacement_2 * contour_displacement_falloff_2;

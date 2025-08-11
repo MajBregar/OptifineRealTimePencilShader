@@ -10,7 +10,7 @@ void main() {
     int material = get_id(TexCoords);
     vec2 face_uv = texture2D(TANGENT_SPACE_UVS, TexCoords).xy;     
     float contour_color = get_displaced_fragment_contour_color(TexCoords, face_uv);
-    float lighting_color = texture2D(colortex3, TexCoords).r;
+    float lighting_color = texture2D(LIGHTMAP, TexCoords).r;
 
     vec2 perceptual_brightness = vec2(eyeBrightnessSmooth) / 240.0;
     float perceptual_b_block = perceptual_brightness.x;
@@ -24,7 +24,7 @@ void main() {
 
         vec3 output_color = vec3(clamp(final_sky_color - contrast_adjustment, 0.0, 1.0));
 
-        /* RENDERTARGETS:4 */
+        /* RENDERTARGETS:3 */
         gl_FragData[0] = vec4(vec3(final_sky_color), 1.0);
         return;
     }
@@ -33,8 +33,8 @@ void main() {
     float shading_color = sample_pencil_shading(lighting_color, face_uv, TexCoords);
     float final_color = pencil_blend_function(min(contour_color, shading_color), contour_color, 1.0, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
 
-    vec3 output_color = vec3(clamp(final_color - contrast_adjustment, 0.0, 1.0));
+    float output_color = clamp(final_color - contrast_adjustment, 0.0, 1.0);
     
-    /* RENDERTARGETS:4 */   
-    gl_FragData[0] = vec4(output_color, 1.0);
+    /* RENDERTARGETS:3 */   
+    gl_FragData[0] = vec4(output_color, 0.0, 0.0, 0.0);
 }
