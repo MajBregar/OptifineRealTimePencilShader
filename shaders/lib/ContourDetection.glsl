@@ -76,7 +76,7 @@ vec3 test_detection(vec2 center_uv, float depth, int center_material_id){
 
             //PLANE DIFFERENCE CHECK
 
-            float neighbour_depth = texture2D(depthtex0, neighbour_sample_uv).r;
+            float neighbour_depth = texture2D(DEPTH_BUFFER_ALL, neighbour_sample_uv).r;
             vec3 neigh_screen_pos = vec3(neighbour_sample_uv, neighbour_depth);
             vec3 neigh_view_pos = screen_to_view_space(neigh_screen_pos);
 

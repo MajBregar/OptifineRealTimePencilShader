@@ -4,13 +4,13 @@ float calculate_mip_level(vec2 uvs){
     vec2 dx = dFdx(uvs * vec2(MIPMAP_TILE_RESOLUTION));
     vec2 dy = dFdy(uvs * vec2(MIPMAP_TILE_RESOLUTION));
     float d = max(dot(dx, dx), dot(dy, dy));
-    return clamp((0.4 * log2(d)) / MAX_MIP, 0.0, 1.0);
+    return clamp((DERIVATIVE_MIPMAP_CALC_MULTIPLIER * log2(d)) / MAX_MIP, 0.0, 1.0);
 }
 #endif
 
 float calculate_mip_level_depth(float depth) {
     float d = linearize_depth(depth);
-    return clamp((0.65 * log2(d) - 0.4) / MAX_MIP, 0.0, 1.0);
+    return clamp((DEPTH_MIPMAP_CALC_MULTIPLIER * log2(d) - DEPTH_MIPMAP_CALC_ADJUST) / MAX_MIP, 0.0, 1.0);
 }
 
 
@@ -43,8 +43,7 @@ vec2 index_to_tile_origin(float index) {
 
 vec2 get_grid_mipmap_uv(vec2 tile_space_uv, int tile_index, int mip_level) {
 
-    vec2 texture_aspect_ratio_inverse = vec2(2.0 / 3.0, 1.0);
-    vec2 grid_tile_size_texture_uv = vec2(1.0 / GRID_SIZE, 1.0 / GRID_SIZE) * texture_aspect_ratio_inverse;
+    vec2 grid_tile_size_texture_uv = vec2(1.0 / GRID_SIZE, 1.0 / GRID_SIZE) * mipmap_inverse_aspect_ratio;
 
     vec2 tile_origin_in_grid_space = index_to_tile_origin(float(tile_index));
 
@@ -55,7 +54,7 @@ vec2 get_grid_mipmap_uv(vec2 tile_space_uv, int tile_index, int mip_level) {
 
     vec2 grid_origin_in_texture_space = get_mip_layer_origin(mip_level);
 
-    vec2 tile_origin_in_texture_space = grid_origin_in_texture_space + tile_origin_in_grid_space_adjusted_for_mip * texture_aspect_ratio_inverse;
+    vec2 tile_origin_in_texture_space = grid_origin_in_texture_space + tile_origin_in_grid_space_adjusted_for_mip * mipmap_inverse_aspect_ratio;
 
     vec2 tile_space_uv_scaled_for_texture_space = tile_space_uv * grid_tile_size_texture_uv * mip_scalar;
 
@@ -72,14 +71,12 @@ int light_to_index(float light){
 //NORMAL MIPPED TEXTURE SAMPLING
 vec2 get_mipmap_uv(vec2 sample_uv, int mip_level){
 
-    vec2 texture_aspect_ratio = vec2(2.0 / 3.0, 1.0);
-
     vec2 mip_layer_texture_space_origin = get_mip_layer_origin(mip_level);
 
     int mip_devision = 1 << (mip_level);
     float mip_scalar = 1.0 / mip_devision;
 
-    vec2 sample_uv_scaled = sample_uv * mip_scalar * texture_aspect_ratio;
+    vec2 sample_uv_scaled = sample_uv * mip_scalar * mipmap_inverse_aspect_ratio;
 
     return clamp(mip_layer_texture_space_origin + sample_uv_scaled, 0.0, 1.0);
 }

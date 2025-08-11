@@ -41,7 +41,6 @@ uniform sampler2D colortex10;
 
 uniform sampler2D texture;
 uniform sampler2D depthtex0;
-uniform sampler2D depthtex1;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;

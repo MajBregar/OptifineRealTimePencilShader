@@ -20,7 +20,7 @@ void main() {
     float contrast_adjustment = (adjusted_block + perceptual_b_sky) * 0.06;
 
     if (material == SKY){
-        float final_sky_color = pencil_blend_function(min(contour_color, lighting_color), contour_color, CONTOUR_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
+        float final_sky_color = pencil_blend_function(min(contour_color, lighting_color), contour_color, 1.0, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
 
         vec3 output_color = vec3(clamp(final_sky_color - contrast_adjustment, 0.0, 1.0));
 

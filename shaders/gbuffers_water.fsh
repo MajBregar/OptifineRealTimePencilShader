@@ -4,8 +4,6 @@
 #include "lib/Inc.glsl"
 
 varying vec2 TexCoords;
-varying vec3 ModelPos;
-varying vec3 ModelNormal;
 
 varying vec3 ViewNormal;
 varying vec2 Lightmap;

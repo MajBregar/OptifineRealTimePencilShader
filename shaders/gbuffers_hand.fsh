@@ -5,10 +5,7 @@
 
 
 varying vec2 TexCoords;
-varying vec3 ModelPos;
-varying vec3 ModelNormal;
 varying vec4 Color;
-
 varying vec2 Lightmap;
 varying vec3 ViewNormal;
 

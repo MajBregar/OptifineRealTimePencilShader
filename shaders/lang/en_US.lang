@@ -1,61 +1,67 @@
-option.CONTOUR_SHAKE_MAX_DISPLACEMENT=Max Displacement
-option.CONTOUR_SHAKE_MAX_DISPLACEMENT.comment=Max Displacement For Pencil Contour Shaking.
+option.CONTOUR_SHAKE_MAX_DISPLACEMENT=Contour Shaking
+option.CONTOUR_SHAKE_MAX_DISPLACEMENT.comment=Controls how much contours are displaced when drawn. Set to 0 to disable.
 
-option.CONTOUR_UB=Pencil Hardness
-option.CONTOUR_UB.comment=Pencil Hardness For Drawing Contours. Controls how much graphite gets transfered.
+option.CONTOUR_UB=Pencil Softness
+option.CONTOUR_UB.comment=How much of the base color gets transfered when blending. Set to 0 to have no transfer, set to 1 to transfer all color.
 
-option.CONTOUR_CS=Pencil Blackness
-option.CONTOUR_CS.comment=Pencil Blackness For Drawing Contour. Controls the base pencil blackness.
+option.CONTOUR_CS=Pencil Color
+option.CONTOUR_CS.comment=Base color of the contour pencil. 0 means completely black, 1 means completely white.
 
 option.CONTOUR_DETECTION_KERNEL_SIZE=Contour Thickness
-option.CONTOUR_DETECTION_KERNEL_SIZE.comment=Controls thickness of contour strokes.
+option.CONTOUR_DETECTION_KERNEL_SIZE.comment=Thickness of contour strokes. Set to 0 to have 1 pixel thick contours.
 
 option.CONTOUR_VIEW_DISTANCE=Contour View Distance
-option.CONTOUR_VIEW_DISTANCE.comment=Controls the contour view falloff.
+option.CONTOUR_VIEW_DISTANCE.comment=Clamped view distance for falloff calculations. When max distance is reached, all falloffs are maximized.
 
-option.CONTOUR_DISPLACEMENT_FALLOFF=Displacement Falloff
-option.CONTOUR_DISPLACEMENT_FALLOFF.comment=Controls how fast displacement disappears with distance.
+option.CONTOUR_DISPLACEMENT_FALLOFF=Shaking Falloff
+option.CONTOUR_DISPLACEMENT_FALLOFF.comment=Controls the linearity of the shaking falloff. Up close the shaking value is maximized, at max distance it is disabled. Set to 0 to disable displacement falloff. Set to 1 for linear falloff, set to 3.0 for cubic falloff.
 
 option.CONTOUR_COLOR_FALLOFF=Color Falloff
-option.CONTOUR_COLOR_FALLOFF.comment=Controls how fast contour color disappears with distance.
+option.CONTOUR_COLOR_FALLOFF.comment=Controls the linearity of the color falloff. Up close the color is darkest, at max distance it is white/transparent. Set to 0 to disable color falloff. Set to 1 for linear falloff, set to 3.0 for cubic falloff.
 
-option.CONTOUR_COLOR_FALLOFF_MINIMUM=Color Falloff Min
-option.CONTOUR_COLOR_FALLOFF_MINIMUM.comment=Minimum Contour Color At Max Falloff
+option.CONTOUR_COLOR_FALLOFF_MINIMUM=Minimum darkness
+option.CONTOUR_COLOR_FALLOFF_MINIMUM.comment=Minimum darkness a contour can have. Ignores color falloff. Set to 0 to allow contours to completely disappear.
 
 option.CONTOUR_THICKNESS_FALLOFF=Thickness Falloff
-option.CONTOUR_THICKNESS_FALLOFF.comment=Controls how fast contour tickness disappears with distance.
+option.CONTOUR_THICKNESS_FALLOFF.comment=Controls the linearity of the thickness falloff. Up close contours are thickest, at max distance contours are 1 pixel wide. Set to 0 to disable thickness falloff. Set to 1 for linear falloff, set to 3.0 for cubic falloff.
 
 option.CONTOUR_NOISE=Contour Roughness
-option.CONTOUR_NOISE.comment=Controls Random Noise of Contours.
+option.CONTOUR_NOISE.comment=Max amplitude of random noise within contour strokes. Set to 0 to completely disable noise.
+
+option.CONTOUR_UW=White Preservation Mult
+option.CONTOUR_UW.comment=Multiplier for preserving white pixels above the threshold.
+
+option.CONTOUR_WP_THRESHOLD=Contour WP Threshold
+option.CONTOUR_WP_THRESHOLD.comment=Threshold for which pixels are white enough to preserve their whiteness when blending. Set to 0 to prevent every pixel above the threshold from being colored. Set to 1 to allow every pixel to be colored.
 
 
-option.CROSSHATCH_UB=Pencil Hardness
-option.CROSSHATCH_UB.comment=Pencil Hardness For Crosshatching. Controls how much graphite gets transfered.
 
-option.CROSSHATCH_UW=White Preservation
-option.CROSSHATCH_UW.comment=White Preservation When Crosshatching. Controls how well white patches get preserved.
 
-option.CROSSHATCH_WP_THRESHOLD=White Preservation Threshold
-option.CROSSHATCH_WP_THRESHOLD.comment=White Preservation Threshold When Crosshatching. Controls which pixels are white enough to preserve whiteness.
+option.CROSSHATCH_UB=Pencil Softness
+option.CROSSHATCH_UB.comment=How much of the base color gets transfered when blending. Set to 0 to have no transfer, set to 1 to transfer all color.
 
-option.CROSSHATCH_DIAGONAL_CH_THRESHOLD=Diagonal Threshold
-option.CROSSHATCH_DIAGONAL_CH_THRESHOLD.comment=Light level threshold to add diagonal crosshatching.
+option.CROSSHATCH_UW=White Preservation Mult
+option.CROSSHATCH_UW.comment=Multiplier for preserving white pixels above the threshold.
 
-option.CROSSHATCH_BLENDING_MULTIPLIER=Transition Blending Multiplier
-option.CROSSHATCH_BLENDING_MULTIPLIER.comment=Controls the light level blending of crosshatching textures.
+option.CROSSHATCH_WP_THRESHOLD=Crosshatching WP Threshold
+option.CROSSHATCH_WP_THRESHOLD.comment=Threshold for which pixels are white enough to preserve their whiteness when blending. Set to 0 to prevent every pixel above the threshold from being colored. Set to 1 to allow every pixel to be colored.
 
 
 
 
 option.SHADOW_QUALITY=Shadow Quality
-option.SHADOW_QUALITY.comment=Controls the shadow sampling quality.
+option.SHADOW_QUALITY.comment=Amount of times shadows are sampled. Higher values require more work.
 
 option.SHADOW_SOFTNESS=Shadow Softness
-option.SHADOW_SOFTNESS.comment=Controls how blury the shadow is.
+option.SHADOW_SOFTNESS.comment=How soft shadows are. Set to 0 for complete pixelation.
 
 option.AMBIENT_LIGHT=Ambient Light
-option.AMBIENT_LIGHT.comment=Baseline World Light Level.
+option.AMBIENT_LIGHT.comment=Base world light level.
 
+option.SUN_BRIGHTNESS=Sun Brightness
+option.SUN_BRIGHTNESS.comment=How much the sunlight contributes to lighting calculations.
 
+option.MINIMUM_SKY_BRIGHTNESS=Min Sky Brightness
+option.MINIMUM_SKY_BRIGHTNESS.comment=Minimum brightness level of the sky.
 
 
