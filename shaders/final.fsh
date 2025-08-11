@@ -16,8 +16,7 @@ void main() {
 
     vec3 paper_texture = sample_grayscale_mip_interpolated(PAPER_TEXTURE, paper_sample_uv, TexCoords);
 
-    float texture_blend = 0.0;
-    vec3 final_color = (texture_blend * default_albedo + (1.0 - texture_blend) * paper_texture) * shading * tint;
+    vec3 final_color = (ALBEDO_BLEND * default_albedo + (1.0 - ALBEDO_BLEND) * paper_texture) * shading * tint;
 
     gl_FragColor = vec4(final_color, 1.0);
 }

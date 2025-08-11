@@ -65,3 +65,7 @@ option.MINIMUM_SKY_BRIGHTNESS=Min Sky Brightness
 option.MINIMUM_SKY_BRIGHTNESS.comment=Minimum brightness level of the sky.
 
 
+
+
+option.ALBEDO_BLEND=Default Color Blend
+option.ALBEDO_BLEND.comment=How much of the default albedo is used. Set to 0 to only use the tint and paper textures.
