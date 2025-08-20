@@ -6,9 +6,7 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 ### LATER
 - make/find paper normal map
 
-### HIGH PRIO
-- dot artifact filtring in comp shader
-- mip on UV map
+
 
 
 ### mention in diploma
@@ -18,3 +16,11 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 - player feet space is locked in head and eye space is relative to camera
 - gbuffersModelView is just the view matrix
 - far isnt the far plane its the render distance in blocks
+
+
+
+
+### HIGH PRIO
+- dot artifact filtring in comp shader
+- mip on UV map
+- add more gbuffer programs

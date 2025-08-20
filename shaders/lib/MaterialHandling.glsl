@@ -23,7 +23,7 @@ bool is_non_mob_entity(int mat) {
 float get_handheld_texture_multiplier(int hhid){
     switch(hhid){
         case 30001: return 16.0;
-        default: return 32.0;
+        default: return 64.0;
     }
 }
 

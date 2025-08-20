@@ -11,10 +11,9 @@ void main(){
     TexCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     Color = gl_Color;
 
-    vec3 shadow_ndc = ftransform().rgb;
-    vec3 distorted = distort_shadow_clip_pos(shadow_ndc);
+    vec3 shadow_clip = ftransform().rgb;
+    vec3 distorted = distort_shadow_clip_pos(shadow_clip);
     gl_Position = vec4(distorted, 1.0);
     
-
 }
 

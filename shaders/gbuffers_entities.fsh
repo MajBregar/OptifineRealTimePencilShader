@@ -8,15 +8,14 @@ varying vec2 TexCoords;
 varying vec4 Color;
 varying vec3 ViewNormal;
 varying vec2 Lightmap;
-varying vec2 UVs;
 
 void main(){
     vec4 default_color = texture2D(gtexture, TexCoords) * Color;
 
     float mat = entityId > 0 ? float(entityId) : float(MOBS_DEFAULT);
-    vec2 adjusted_UVs = fract(UVs * get_entity_texture_multiplier(entityId));
+    vec2 adjusted_UVs = fract(TexCoords * get_entity_texture_multiplier(entityId));
 
-    float lighting = process_lighting(gl_FragCoord.xyz, UVs, ViewNormal, Lightmap);
+    float lighting = process_lighting(gl_FragCoord.xyz, adjusted_UVs, ViewNormal, Lightmap);
     float mip_level = calculate_mip_level_depth(gl_FragCoord.z);
 
     /* RENDERTARGETS:0,1,2,9,8*/

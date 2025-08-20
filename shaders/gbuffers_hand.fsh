@@ -19,14 +19,14 @@ void main(){
     }
 
     float mat = heldItemId > 0 ? float(heldItemId) : float(IN_HAND_DEFAULT);
-    vec2 UVs = fract(TexCoords * get_handheld_texture_multiplier(heldItemId));
+    vec2 uvs_mult = fract(TexCoords * get_handheld_texture_multiplier(heldItemId));
 
-    float lighting = process_lighting(gl_FragCoord.xyz, UVs, ViewNormal, Lightmap);
+    float lighting = process_lighting(gl_FragCoord.xyz, uvs_mult, ViewNormal, Lightmap);
 
     /* RENDERTARGETS:0,1,2,9,8*/
     gl_FragData[0] = default_color;
     gl_FragData[1] = vec4(ViewNormal, 1.0);
     gl_FragData[2] = vec4(lighting, 0.0, 0.0, 1.0);
     gl_FragData[3] = vec4(mat, 0.0, 0.0, 1.0);
-    gl_FragData[4] = vec4(UVs, 0.0, 1.0);
+    gl_FragData[4] = vec4(uvs_mult, 0.0, 1.0);
 }

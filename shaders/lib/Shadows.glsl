@@ -1,12 +1,12 @@
 
 
-vec3 distort_shadow_clip_pos(vec3 shadow_ndc) {
-    float len_to_edge = length(shadow_ndc.xy);
-    float distortion = len_to_edge * SHADOW_BIAS + (1.0 - SHADOW_BIAS);
+vec3 distort_shadow_clip_pos(vec3 shadow_clip) {
+    float len_to_edge = length(shadow_clip.xy);
+    float distortion = len_to_edge + SHADOW_DISTORTION_BIAS;
 
-    shadow_ndc.xy /= distortion;
-    shadow_ndc.z *= SHADOW_Z_COMPRESSION; 
-    return shadow_ndc;
+    shadow_clip.xy /= distortion;
+    shadow_clip.z *= SHADOW_Z_COMPRESSION; 
+    return shadow_clip;
 }
 
 vec4 get_shadow_map_clip_hom_position_biased(vec3 fragcords, vec3 view_normal){
@@ -65,8 +65,8 @@ vec3 get_shadow_box_blur(vec3 fragcords, vec2 noise_sample_uv, vec3 view_normal)
 
       vec2 offset = rotation * vec2(x, y) / shadowMapResolution;
       vec4 shadow_clip = center_shadow_map_clip_pos + vec4(offset, 0.0, 0.0);
-      vec3 shadow_ndc = shadow_clip.xyz / shadow_clip.w;
-      vec3 dsp = distort_shadow_clip_pos(shadow_ndc) * 0.5 + 0.5;
+      vec3 shadow_clip_div = shadow_clip.xyz / shadow_clip.w;
+      vec3 dsp = distort_shadow_clip_pos(shadow_clip_div) * 0.5 + 0.5;
 
       shadow_sum += get_shadow(dsp);
       samples++;
