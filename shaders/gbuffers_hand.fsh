@@ -11,7 +11,7 @@ varying vec3 ViewNormal;
 
 
 void main(){
-    vec4 default_color = texture2D(texture, TexCoords) * Color;
+    vec4 default_color = texture2D(gtexture, TexCoords) * Color;
     
     float texture_sample_multiplier = 32.0;
     if (heldItemId == 30001){

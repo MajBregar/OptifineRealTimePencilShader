@@ -6,15 +6,9 @@ Real Time Pencil Shader for the OptiFine Minecraft modification
 ### LATER
 - make/find paper normal map
 
-### REALLY LOW PRIO
-- make intuitive options
-
 ### HIGH PRIO
 - dot artifact filtring in comp shader
 - mip on UV map
-
-### OPTIMIZATIONS
-- refactor all code - ESPECIALLY SHADOW MAP CODE
 
 
 ### mention in diploma

@@ -14,7 +14,7 @@ varying float Material;
 
 
 void main(){
-    vec4 default_color = texture2D(texture, TexCoords) * Color;
+    vec4 default_color = texture2D(gtexture, TexCoords) * Color;
 
     float mat = Material > 0.0 ? Material : float(BLOCKS_DEFAULT);
     

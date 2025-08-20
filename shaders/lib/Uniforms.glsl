@@ -16,7 +16,6 @@ const int colortex10Format = RGB16;
 
 const vec4 colortex4ClearColor = vec4(-3.4028235e+38,0.,0.,0.); //reset int depth compute buffer to 0xFF7FFFFF 
 
-
 const int shadowMapResolution = 2048;
 const int noiseTextureResolution = 128;
 const float sunPathRotation = 45.0;
@@ -39,7 +38,7 @@ uniform sampler2D colortex8;
 uniform sampler2D colortex9;
 uniform sampler2D colortex10;
 
-uniform sampler2D texture;
+uniform sampler2D gtexture;
 uniform sampler2D depthtex0;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;

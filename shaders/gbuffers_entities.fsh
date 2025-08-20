@@ -11,7 +11,7 @@ varying vec2 Lightmap;
 varying vec2 UVs;
 
 void main(){
-    vec4 default_color = texture2D(texture, TexCoords) * Color;
+    vec4 default_color = texture2D(gtexture, TexCoords) * Color;
 
     float mat = entityId > 0 ? float(entityId) : float(MOBS_DEFAULT);
     vec2 adjusted_UVs = fract(UVs * get_entity_texture_multiplier(entityId));
