@@ -15,12 +15,12 @@ varying vec2 UVs;
 
 void main() {
     gl_Position = ftransform();
-    TexCoords = gl_MultiTexCoord0.st;
+    TexCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
     ViewNormal = normalize(gl_NormalMatrix * gl_Normal);
 
     Lightmap = mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.st;
-    Lightmap = (Lightmap * 31.05 / 32.0) - (1.05 / 16.0);
+    Lightmap = Lightmap / (30.0 / 32.0) - (1.0 / 32.0); 
 
     Color = gl_Color;
 

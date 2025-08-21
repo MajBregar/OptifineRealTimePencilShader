@@ -8,15 +8,7 @@ varying vec2 TexCoords;
 
 void main() {
 
-    vec3 default_albedo = texture2D(ALBEDO_BUFFER, TexCoords).rgb;
-    vec3 tint = (vec3(float(240), float(213), float(185)) / 256) * 1.0;
+    vec3 screen_color = texture2D(ALBEDO_BUFFER, TexCoords).rgb;
 
-    vec3 shading = vec3(texture2D(SHADING_BUFFER_MAIN, TexCoords).r);
-    vec2 paper_sample_uv = texture2D(TANGENT_SPACE_UVS, TexCoords).xy;
-
-    vec3 paper_texture = sample_grayscale_mip_interpolated(PAPER_TEXTURE, paper_sample_uv, TexCoords);
-
-    vec3 final_color = (ALBEDO_BLEND * default_albedo + (1.0 - ALBEDO_BLEND) * paper_texture) * shading * tint;
-
-    gl_FragColor = vec4(shading, 1.0);
+    gl_FragColor = vec4(screen_color, 1.0);
 }

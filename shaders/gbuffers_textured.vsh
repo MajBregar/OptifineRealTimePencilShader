@@ -7,7 +7,6 @@ in vec3 mc_Entity;
 
 varying vec2 TexCoords;
 varying vec4 Color;
-
 varying vec3 ViewNormal;
 varying vec2 Lightmap;
 
@@ -17,7 +16,7 @@ void main() {
     ViewNormal = normalize(gl_NormalMatrix * gl_Normal);
 
     Lightmap = mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.st;
-    Lightmap = (Lightmap * 31.05 / 32.0) - (1.05 / 16.0);
+    Lightmap = Lightmap / (30.0 / 32.0) - (1.0 / 32.0); 
 
     Color = gl_Color;
     

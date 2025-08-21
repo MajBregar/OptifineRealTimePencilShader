@@ -17,14 +17,12 @@ void main(){
     vec4 default_color = texture2D(gtexture, TexCoords) * Color;
 
     float mat = Material > 0.0 ? Material : float(BLOCKS_DEFAULT);
-    
-    float lighting = process_lighting(gl_FragCoord.xyz, UVs, ViewNormal, Lightmap);
     float mip_level = calculate_mip_level(UVs);
 
     /* RENDERTARGETS:0,1,2,9,8*/
     gl_FragData[0] = default_color;
     gl_FragData[1] = vec4(ViewNormal, 1.0);
-    gl_FragData[2] = vec4(lighting, 0.0, 0.0, 1.0);
+    gl_FragData[2] = vec4(Lightmap, 0.0, 1.0);
     gl_FragData[3] = vec4(mat, 0.0, 0.0, 1.0);
     gl_FragData[4] = vec4(UVs, mip_level, 1.0);
 }

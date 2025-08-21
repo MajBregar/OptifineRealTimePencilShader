@@ -1,11 +1,9 @@
 
 
-float sample_pencil_shading(float light_level, vec2 tile_uv, vec2 screen_sample) {
+float sample_pencil_shading(float light_level, vec2 tile_uv, vec2 screen_sample, vec3 mip_levels) {
     int tile_id = light_to_index(light_level);
 
     if (tile_id == 0) return 1.0;
-
-    vec3 mip_levels = read_mip_level(screen_sample);
 
     float cs_horizontal =   sample_grayscale_grid_mip_interpolated(tile_uv, tile_id, mip_levels);
     float cs_vertical =     sample_grayscale_grid_mip_interpolated(fast_rotate_uv_90(tile_uv), tile_id, mip_levels);

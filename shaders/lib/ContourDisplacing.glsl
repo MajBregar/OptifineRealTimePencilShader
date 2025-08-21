@@ -5,23 +5,23 @@ vec2 get_displacement(vec2 uv, float layer) {
     return vec2((encoded.r - 0.5) * 2.0 * CONTOUR_SHAKE_MAX_DISPLACEMENT, (encoded.g - 0.5) * 2.0 * CONTOUR_SHAKE_MAX_DISPLACEMENT);
 }
 
-float get_displaced_fragment_contour_color(vec2 uv, vec2 face_uv, vec2 screen_sample){
-    vec2 raw_displacement_1 = get_displacement(uv, 0.0);
-    vec2 raw_displacement_2 = get_displacement(uv, 1.0);
-    vec2 raw_displacement_3 = get_displacement(uv, 2.0);
+float get_displaced_fragment_contour_color(vec2 screen_sample, vec2 face_uv, vec3 mip_levels){
+    vec2 raw_displacement_1 = get_displacement(screen_sample, 0.0);
+    vec2 raw_displacement_2 = get_displacement(screen_sample, 1.0);
+    vec2 raw_displacement_3 = get_displacement(screen_sample, 2.0);
 
     
-    float contour_displacement_falloff_1 = CONTOUR_DISPLACEMENT_FALLOFF > 0.0 ? 1.0 - pow(texture2D(SHADING_BUFFER_MAIN, clamp(uv + raw_displacement_1, 0.0, 1.0)).g, CONTOUR_DISPLACEMENT_FALLOFF) : 1.0;
-    float contour_displacement_falloff_2 = CONTOUR_DISPLACEMENT_FALLOFF > 0.0 ? 1.0 - pow(texture2D(SHADING_BUFFER_MAIN, clamp(uv + raw_displacement_2, 0.0, 1.0)).g, CONTOUR_DISPLACEMENT_FALLOFF) : 1.0;
-    float contour_displacement_falloff_3 = CONTOUR_DISPLACEMENT_FALLOFF > 0.0 ? 1.0 - pow(texture2D(SHADING_BUFFER_MAIN, clamp(uv + raw_displacement_3, 0.0, 1.0)).g, CONTOUR_DISPLACEMENT_FALLOFF) : 1.0;
+    float contour_displacement_falloff_1 = CONTOUR_DISPLACEMENT_FALLOFF > 0.0 ? 1.0 - pow(texture2D(SHADING_BUFFER_MAIN, clamp(screen_sample + raw_displacement_1, 0.0, 1.0)).g, CONTOUR_DISPLACEMENT_FALLOFF) : 1.0;
+    float contour_displacement_falloff_2 = CONTOUR_DISPLACEMENT_FALLOFF > 0.0 ? 1.0 - pow(texture2D(SHADING_BUFFER_MAIN, clamp(screen_sample + raw_displacement_2, 0.0, 1.0)).g, CONTOUR_DISPLACEMENT_FALLOFF) : 1.0;
+    float contour_displacement_falloff_3 = CONTOUR_DISPLACEMENT_FALLOFF > 0.0 ? 1.0 - pow(texture2D(SHADING_BUFFER_MAIN, clamp(screen_sample + raw_displacement_3, 0.0, 1.0)).g, CONTOUR_DISPLACEMENT_FALLOFF) : 1.0;
 
     vec2 final_contour_displacement_1 = raw_displacement_1 * contour_displacement_falloff_1;
     vec2 final_contour_displacement_2 = raw_displacement_2 * contour_displacement_falloff_2;
     vec2 final_contour_displacement_3 = raw_displacement_3 * contour_displacement_falloff_3;
 
-    float contour_1 = texture2D(SHADING_BUFFER_MAIN, clamp(uv + final_contour_displacement_1, 0.0, 1.0)).r;
-    float contour_2 = texture2D(SHADING_BUFFER_MAIN, clamp(uv + final_contour_displacement_2, 0.0, 1.0)).r;
-    float contour_3 = texture2D(SHADING_BUFFER_MAIN, clamp(uv + final_contour_displacement_3, 0.0, 1.0)).r;
+    float contour_1 = texture2D(SHADING_BUFFER_MAIN, clamp(screen_sample + final_contour_displacement_1, 0.0, 1.0)).r;
+    float contour_2 = texture2D(SHADING_BUFFER_MAIN, clamp(screen_sample + final_contour_displacement_2, 0.0, 1.0)).r;
+    float contour_3 = texture2D(SHADING_BUFFER_MAIN, clamp(screen_sample + final_contour_displacement_3, 0.0, 1.0)).r;
 
     float noise = texture2D(noisetex, face_uv * CONTOUR_NOISE_TEXTURING_MULT).r * CONTOUR_NOISE;
 
@@ -31,12 +31,9 @@ float get_displaced_fragment_contour_color(vec2 uv, vec2 face_uv, vec2 screen_sa
 
     int tile_id = light_to_index(c3_blend);
 
-    vec3 mip_levels = read_mip_level(screen_sample);
     float pencil_texture = sample_grayscale_grid_mip_interpolated(face_uv, tile_id, mip_levels);
 
     float contour_texture = pencil_texture;
-
-
 
     return contour_texture;
 }
