@@ -46,7 +46,8 @@ option.CROSSHATCH_UW.comment=Multiplier for preserving white pixels above the th
 option.CROSSHATCH_WP_THRESHOLD=Crosshatching WP Threshold
 option.CROSSHATCH_WP_THRESHOLD.comment=Threshold for which pixels are white enough to preserve their whiteness when blending. Set to 0 to prevent every pixel above the threshold from being colored. Set to 1 to allow every pixel to be colored.
 
-
+option.NORMAL_MAP_COEF=Normal Map Blending
+option.NORMAL_MAP_COEF.comment=How much color pencil strokes leave when interracting with the normal map.
 
 
 option.SHADOW_QUALITY=Shadow Quality

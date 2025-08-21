@@ -18,5 +18,5 @@ void main() {
 
     vec3 final_color = (ALBEDO_BLEND * default_albedo + (1.0 - ALBEDO_BLEND) * paper_texture) * shading * tint;
 
-    gl_FragColor = vec4(final_color, 1.0);
+    gl_FragColor = vec4(shading, 1.0);
 }

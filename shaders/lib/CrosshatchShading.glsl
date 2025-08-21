@@ -1,15 +1,5 @@
 
 
-float sample_grayscale_grid_mip_interpolated(vec2 tile_space_uv, int tile_id, vec3 mip_levels){
-    vec2 main_mip_sample_uv = get_grid_mipmap_uv(tile_space_uv, tile_id, int(mip_levels.x + 0.5));
-    vec2 higher_mip_sample_uv = get_grid_mipmap_uv(tile_space_uv, tile_id, int(mip_levels.y + 0.5));
-
-    float grayscale_main =   texture2D(CROSSHATCHING_TEXTURE, main_mip_sample_uv).r;
-    float grayscale_higher = texture2D(CROSSHATCHING_TEXTURE, higher_mip_sample_uv).r;
-
-    return (1.0 - mip_levels.z) * grayscale_main + mip_levels.z * grayscale_higher;
-}
-
 float sample_pencil_shading(float light_level, vec2 tile_uv, vec2 screen_sample) {
     int tile_id = light_to_index(light_level);
 
@@ -25,5 +15,14 @@ float sample_pencil_shading(float light_level, vec2 tile_uv, vec2 screen_sample)
     float shading_blend_2 = pencil_blend_function(shading_blend_1, cs_vertical,     CROSSHATCH_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
     float shading_blend_3 = pencil_blend_function(shading_blend_2, cs_diagonal,     CROSSHATCH_UB, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
 
-    return shading_blend_3;
+    vec3 mipped_normal = sample_mip_interpolated(NORMAL_MAP, tile_uv, screen_sample);
+    vec3 normal_map = normalize(mipped_normal * 2.0 - 1.0);
+
+    float final_color = shading_blend_3;
+    final_color += shading_blend_3 < 0.99 ? light_level * NORMAL_MAP_COEF * dot(tangent_space_horizontal, normal_map) : 0.0;
+    final_color += shading_blend_3 < 0.99 ? light_level * NORMAL_MAP_COEF * dot(tangent_space_vertical, normal_map) : 0.0;
+    final_color += shading_blend_3 < 0.99 ? light_level * NORMAL_MAP_COEF * dot(tangent_space_45deg, normal_map) : 0.0;
+
+
+    return final_color;
 }

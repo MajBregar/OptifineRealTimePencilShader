@@ -8,8 +8,9 @@ varying vec2 TexCoords;
 void main() {
 
     int material = get_id(TexCoords);
-    vec2 face_uv = texture2D(TANGENT_SPACE_UVS, TexCoords).xy;     
-    float contour_color = get_displaced_fragment_contour_color(TexCoords, face_uv);
+    vec2 face_uv = texture2D(TANGENT_SPACE_UVS, TexCoords).xy;  
+
+    float contour_color = get_displaced_fragment_contour_color(TexCoords, face_uv, TexCoords);
     float lighting_color = texture2D(LIGHTMAP, TexCoords).r;
 
     vec2 perceptual_brightness = vec2(eyeBrightnessSmooth) / 240.0;

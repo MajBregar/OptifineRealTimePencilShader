@@ -10,6 +10,6 @@ void main(){
 
     /* RENDERTARGETS:2,8,9*/
     gl_FragData[0] = vec4(sky_light, 0.0, 0.0, 1.0);
-    gl_FragData[1] = vec4(sky_uv, 0.0, 1.0);
+    gl_FragData[1] = vec4(sky_uv, 3.0, 1.0);
     gl_FragData[2] = vec4(float(SKY), 0.0, 0.0, 1.0);
 }

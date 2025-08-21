@@ -93,3 +93,30 @@ vec3 sample_grayscale_mip_interpolated(sampler2D texture_sampler, vec2 sample_uv
     float higher_layer = texture2D(texture_sampler, higher_mip_sample_uv).r;
     return vec3((1.0 - mip_levels.z) * main_layer + mip_levels.z * higher_layer);
 }
+
+
+vec3 sample_mip_interpolated(sampler2D texture_sampler, vec2 sample_uv, vec2 screen_sample){
+    sample_uv = sample_uv * 0.9999;
+
+    vec3 mip_levels = read_mip_level(screen_sample);
+
+    vec2 main_mip_sample_uv = get_mipmap_uv(sample_uv, int(mip_levels.x + 0.5));
+    vec2 higher_mip_sample_uv = get_mipmap_uv(sample_uv, int(mip_levels.y + 0.5));
+
+    vec3 main_layer =   texture2D(texture_sampler, main_mip_sample_uv).rgb;
+    vec3 higher_layer = texture2D(texture_sampler, higher_mip_sample_uv).rgb;
+    return (1.0 - mip_levels.z) * main_layer + mip_levels.z * higher_layer;
+}
+
+
+
+//GRID MIPMAP SAMPLING
+float sample_grayscale_grid_mip_interpolated(vec2 tile_space_uv, int tile_id, vec3 mip_levels){
+    vec2 main_mip_sample_uv = get_grid_mipmap_uv(tile_space_uv, tile_id, int(mip_levels.x + 0.5));
+    vec2 higher_mip_sample_uv = get_grid_mipmap_uv(tile_space_uv, tile_id, int(mip_levels.y + 0.5));
+
+    float grayscale_main =   texture2D(CROSSHATCHING_TEXTURE, main_mip_sample_uv).r;
+    float grayscale_higher = texture2D(CROSSHATCHING_TEXTURE, higher_mip_sample_uv).r;
+
+    return (1.0 - mip_levels.z) * grayscale_main + mip_levels.z * grayscale_higher;
+}

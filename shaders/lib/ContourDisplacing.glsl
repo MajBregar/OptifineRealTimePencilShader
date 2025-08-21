@@ -5,7 +5,7 @@ vec2 get_displacement(vec2 uv, float layer) {
     return vec2((encoded.r - 0.5) * 2.0 * CONTOUR_SHAKE_MAX_DISPLACEMENT, (encoded.g - 0.5) * 2.0 * CONTOUR_SHAKE_MAX_DISPLACEMENT);
 }
 
-float get_displaced_fragment_contour_color(vec2 uv, vec2 face_uv){
+float get_displaced_fragment_contour_color(vec2 uv, vec2 face_uv, vec2 screen_sample){
     vec2 raw_displacement_1 = get_displacement(uv, 0.0);
     vec2 raw_displacement_2 = get_displacement(uv, 1.0);
     vec2 raw_displacement_3 = get_displacement(uv, 2.0);
@@ -29,5 +29,14 @@ float get_displaced_fragment_contour_color(vec2 uv, vec2 face_uv){
     float c2_blend = pencil_blend_function(c1_blend, CONTOUR_CS, clamp(CONTOUR_UB * contour_2 - noise, 0.0, 1.0), CONTOUR_UW, CONTOUR_WP_THRESHOLD);
     float c3_blend = pencil_blend_function(c2_blend, CONTOUR_CS, clamp(CONTOUR_UB * contour_3 - noise, 0.0, 1.0), CONTOUR_UW, CONTOUR_WP_THRESHOLD);
 
-    return c3_blend;
+    int tile_id = light_to_index(c3_blend);
+
+    vec3 mip_levels = read_mip_level(screen_sample);
+    float pencil_texture = sample_grayscale_grid_mip_interpolated(face_uv, tile_id, mip_levels);
+
+    float contour_texture = pencil_texture;
+
+
+
+    return contour_texture;
 }
