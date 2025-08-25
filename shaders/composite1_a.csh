@@ -26,7 +26,7 @@ void main() {
     float depth = center.g;
 
     if (center.r < 1.0){
-        imageAtomicMin(colorimg4, pixelCoord, encode_depth(depth) + DEPTH_SCALE_U);
+        imageAtomicMin(colorimg4, pixelCoord, encode_depth(depth) + (DEPTH_SCALE_U + 1));
         return;
     }
 

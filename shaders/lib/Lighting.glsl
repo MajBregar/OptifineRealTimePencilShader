@@ -54,7 +54,7 @@ float get_contrast_adjustment(){
 
     float weight = clamp(1.0 - perceptual_b_sky, 0.0, 1.0);
     float adjusted_block = perceptual_b_block * weight;
-    float contrast_adjustment = (adjusted_block + perceptual_b_sky) * 0.06;
+    float contrast_adjustment = (adjusted_block + perceptual_b_sky) * CONTRAST;
 
     return contrast_adjustment;
 }

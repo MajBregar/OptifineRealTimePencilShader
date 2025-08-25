@@ -20,7 +20,9 @@ void main() {
 
 
     float lighting_color = process_lighting(TexCoords, face_uv, view_normal, lightmap, raw_depth, material);
-    float contour_color = get_displaced_fragment_contour_color(TexCoords, face_uv, mip_levels);
+    float contour_color = get_displaced_fragment_contour_color(TexCoords, face_uv);
+    contour_color = contour_color >= 0.99 ? 1.0 : CONTOUR_NOISE * sample_pencil_shading(contour_color, face_uv, TexCoords, mip_levels) + (1.0 - CONTOUR_NOISE) * contour_color;
+
     vec3 paper_texture = sample_grayscale_mip_interpolated(PAPER_TEXTURE, face_uv, TexCoords);
 
 
@@ -28,10 +30,10 @@ void main() {
 
     //SKY SHADING
     if (material == SKY){
-        float sky_blend = pencil_blend_function(min(lighting_color, contour_color), contour_color, 1.0, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
+        float sky_blend = pencil_blend_function(contour_color, lighting_color, 1.0, 1.0, 1.0);
         vec3 sky_shading_color = vec3(clamp(sky_blend - contrast_adjustment, 0.0, 1.0));
 
-        vec3 final_color = (ALBEDO_BLEND * default_albedo + (1.0 - ALBEDO_BLEND) * paper_texture) * sky_shading_color * tint;
+        vec3 final_color = (ALBEDO_BLEND * default_albedo + (1.0 - ALBEDO_BLEND) * paper_texture * tint) * sky_shading_color;
 
         /* RENDERTARGETS:0 */
         gl_FragData[0] = vec4(final_color, 1.0);
@@ -40,10 +42,10 @@ void main() {
 
     //GEOMETRY SHADING
     float crosshatching_color = sample_pencil_shading(lighting_color, face_uv, TexCoords, mip_levels);
-    float shading_blend = pencil_blend_function(min(crosshatching_color, contour_color), contour_color, 1.0, CROSSHATCH_UW, CROSSHATCH_WP_THRESHOLD);
+    float shading_blend = pencil_blend_function(contour_color, crosshatching_color, 1.0, 1.0, 1.0);
     vec3 shading_color = vec3(clamp(shading_blend - contrast_adjustment, 0.0, 1.0));
 
-    vec3 final_color = (ALBEDO_BLEND * default_albedo + (1.0 - ALBEDO_BLEND) * paper_texture) * shading_color * tint;
+    vec3 final_color = (ALBEDO_BLEND * default_albedo + (1.0 - ALBEDO_BLEND) * tint) * shading_color * paper_texture ;
 
     /* RENDERTARGETS:0 */   
     gl_FragData[0] = vec4(final_color, 0.0);

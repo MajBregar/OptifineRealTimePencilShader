@@ -25,7 +25,6 @@ const bool shadowtex1Nearest = true;
 const bool shadowcolor0Nearest = true;
 const float ambientOcclusionLevel = 0.0;
 
-
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
@@ -65,6 +64,7 @@ uniform int frameCounter;
 
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferModelView;
+uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;

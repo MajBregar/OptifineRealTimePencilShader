@@ -4,13 +4,12 @@
 #include "lib/Inc.glsl"
 
 varying vec2 TexCoords;
-
 varying vec3 ViewNormal;
 varying vec2 Lightmap;
-varying vec2 UVs;
-
 varying vec4 Color;
+
 varying float Material;
+varying vec2 UVs;
 
 
 void main(){

@@ -3,8 +3,6 @@
 #define VERTEX_SHADER
 #include "lib/Inc.glsl"
 
-in vec3 mc_Entity;
-
 varying vec2 TexCoords;
 varying vec4 Color;
 varying vec3 ViewNormal;

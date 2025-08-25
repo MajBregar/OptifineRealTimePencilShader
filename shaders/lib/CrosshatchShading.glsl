@@ -21,6 +21,5 @@ float sample_pencil_shading(float light_level, vec2 tile_uv, vec2 screen_sample,
     final_color += shading_blend_3 < 0.99 ? light_level * NORMAL_MAP_COEF * dot(tangent_space_vertical, normal_map) : 0.0;
     final_color += shading_blend_3 < 0.99 ? light_level * NORMAL_MAP_COEF * dot(tangent_space_45deg, normal_map) : 0.0;
 
-
     return final_color;
 }

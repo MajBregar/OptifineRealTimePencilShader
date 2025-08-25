@@ -12,7 +12,6 @@ varying vec2 Lightmap;
 void main(){
     vec4 default_color = texture2D(gtexture, TexCoords) * Color;
 
-    float mat = 2.0;
     vec2 adjusted_UVs = fract(TexCoords * PARTICLE_TEXTURING_MULTIPLIER);
     float mip_level = calculate_mip_level_depth(gl_FragCoord.z);
 
@@ -20,7 +19,7 @@ void main(){
     gl_FragData[0] = default_color;
     gl_FragData[1] = vec4(ViewNormal, 1.0);
     gl_FragData[2] = vec4(Lightmap, 0.0, 1.0);
-    gl_FragData[3] = vec4(mat, 0.0, 0.0, 1.0);
+    gl_FragData[3] = vec4(float(PARTICLE), 0.0, 0.0, 1.0);
     gl_FragData[4] = vec4(adjusted_UVs, mip_level, 1.0);
 
 }

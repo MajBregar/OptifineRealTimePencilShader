@@ -26,7 +26,7 @@ void main() {
     float depth = decode_depth(enc_depth);
 
     if (depth > 1.0){
-        float background_depth = decode_depth(enc_depth - DEPTH_SCALE_U);
+        float background_depth = decode_depth(enc_depth - (DEPTH_SCALE_U + 1));
         if (background_depth > 1.0) return;
 
         imageStore(colorimg3, pixelCoord, vec4(0.0, background_depth, 0.0, 0.0));

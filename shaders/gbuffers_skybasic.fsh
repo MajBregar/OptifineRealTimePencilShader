@@ -9,7 +9,7 @@ varying vec4 Color;
 void main(){
     vec4 default_color = texture2D(gtexture, TexCoords) * Color;
 
-    vec2 sky_uv = get_skybox_uv(gl_FragCoord.xy);
+    vec2 sky_uv = get_skybox_uv(gl_FragCoord.xyz);
 
     /* RENDERTARGETS:8,9,0*/
     gl_FragData[0] = vec4(sky_uv, SKY_MIP_LEVEL, 1.0);

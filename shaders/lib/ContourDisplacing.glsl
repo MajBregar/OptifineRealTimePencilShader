@@ -2,10 +2,10 @@
 vec2 get_displacement(vec2 uv, float layer) {
     vec2 dmap_sample_uv = vec2((uv.x + layer) / DISPLACEMENT_MAP_LAYER_COUNT, uv.y);
     vec2 encoded = texture2D(DISPLACEMENT_MAP, dmap_sample_uv).rg;
-    return vec2((encoded.r - 0.5) * 2.0 * CONTOUR_SHAKE_MAX_DISPLACEMENT, (encoded.g - 0.5) * 2.0 * CONTOUR_SHAKE_MAX_DISPLACEMENT);
+    return (encoded - 0.5) * 2.0 * CONTOUR_SHAKE_MAX_DISPLACEMENT * vec2(1.0, aspectRatio);
 }
 
-float get_displaced_fragment_contour_color(vec2 screen_sample, vec2 face_uv, vec3 mip_levels){
+float get_displaced_fragment_contour_color(vec2 screen_sample, vec2 face_uv){
     vec2 raw_displacement_1 = get_displacement(screen_sample, 0.0);
     vec2 raw_displacement_2 = get_displacement(screen_sample, 1.0);
     vec2 raw_displacement_3 = get_displacement(screen_sample, 2.0);
@@ -23,17 +23,9 @@ float get_displaced_fragment_contour_color(vec2 screen_sample, vec2 face_uv, vec
     float contour_2 = texture2D(SHADING_BUFFER_MAIN, clamp(screen_sample + final_contour_displacement_2, 0.0, 1.0)).r;
     float contour_3 = texture2D(SHADING_BUFFER_MAIN, clamp(screen_sample + final_contour_displacement_3, 0.0, 1.0)).r;
 
-    float noise = texture2D(noisetex, face_uv * CONTOUR_NOISE_TEXTURING_MULT).r * CONTOUR_NOISE;
+    float c1_blend = pencil_blend_function(1.0,      (1.0 - contour_1), CONTOUR_UB, CONTOUR_UW, CONTOUR_WP_THRESHOLD);
+    float c2_blend = pencil_blend_function(c1_blend, (1.0 - contour_2), CONTOUR_UB, CONTOUR_UW, CONTOUR_WP_THRESHOLD);
+    float c3_blend = pencil_blend_function(c2_blend, (1.0 - contour_3), CONTOUR_UB, CONTOUR_UW, CONTOUR_WP_THRESHOLD);
 
-    float c1_blend = pencil_blend_function(1.0,      CONTOUR_CS, clamp(CONTOUR_UB * contour_1 - noise, 0.0, 1.0), CONTOUR_UW, CONTOUR_WP_THRESHOLD);
-    float c2_blend = pencil_blend_function(c1_blend, CONTOUR_CS, clamp(CONTOUR_UB * contour_2 - noise, 0.0, 1.0), CONTOUR_UW, CONTOUR_WP_THRESHOLD);
-    float c3_blend = pencil_blend_function(c2_blend, CONTOUR_CS, clamp(CONTOUR_UB * contour_3 - noise, 0.0, 1.0), CONTOUR_UW, CONTOUR_WP_THRESHOLD);
-
-    int tile_id = light_to_index(c3_blend);
-
-    float pencil_texture = sample_grayscale_grid_mip_interpolated(face_uv, tile_id, mip_levels);
-
-    float contour_texture = pencil_texture;
-
-    return contour_texture;
+    return c3_blend;
 }

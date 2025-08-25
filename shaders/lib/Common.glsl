@@ -14,10 +14,10 @@ vec2 texelSize = vec2(1.0 / viewWidth, 1.0 / viewHeight);
 const vec2 mipmap_inverse_aspect_ratio = vec2(2.0 / 3.0, 1.0);
 vec2 crosshatching_tile_size_uv = vec2(1.0 / GRID_SIZE, 1.0 / GRID_SIZE);
 
-float pencil_blend_function(float ct, float cs, float local_UB, float local_UW, float local_THR) {
+float pencil_blend_function(float ct, float cs, float mub, float muw, float thr) {
     float ca = ct * (1.0 - cs);
-    ca = ct >= local_THR ? ca * local_UW : ca;
-    return ct - local_UB * ca;
+    ca = ct >= thr ? ca * muw : ca;
+    return ct - mub * ca;
 }
 
 
