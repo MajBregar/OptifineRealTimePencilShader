@@ -9,16 +9,13 @@ vec3 distort_shadow_clip_pos(vec3 shadow_clip) {
     return shadow_clip;
 }
 
-vec4 get_shadow_map_clip_hom_position_biased(vec3 fragcords, vec3 view_normal){
-    vec3 fragment_screen_pos = vec3(fragcords.xy / vec2(viewWidth, viewHeight), fragcords.z);
+vec4 get_shadow_map_clip_hom_position_biased(vec3 fragment_screen_pos, vec3 view_normal){
     vec3 fragment_view_pos = screen_to_view_space(fragment_screen_pos);
     vec3 fragment_player_feet_pos = view_to_player_feet_space(fragment_view_pos);
 
 
     vec3 player_space_normal = normalize(view_to_player_feet_space(view_normal));
 
-    float sun_angle = 1.0 - abs(dot(view_normal, normalize(sunPosition)));
-    float view_angle = 1.0 - abs(dot(view_normal, normalize(fragment_view_pos)));
     float dist_squared = dot(fragment_player_feet_pos, fragment_player_feet_pos);
 
     float distance_bias = 0.05 * SHADOW_SOFTNESS + 0.0001 * dist_squared; //hardcoded
@@ -32,25 +29,35 @@ vec4 get_shadow_map_clip_hom_position_biased(vec3 fragcords, vec3 view_normal){
 }
 
 
-vec3 get_shadow(vec3 shadow_map_screen){
-  float shadow_all = step(shadow_map_screen.z, texture2D(SHADOWS_OPAQUE, shadow_map_screen.xy).r);
+vec3 get_shadow(vec3 screen_pos){
 
-  if(shadow_all == 1.0) return vec3(1.0); //no shadow
+  float shadow_map_depth1 = texture2D(SHADOWS_OPAQUE, screen_pos.xy).r;
 
-  float shadow_no_transparent = step(shadow_map_screen.z, texture2D(SHADOWS_TRANSPARANT, shadow_map_screen.xy).r);
+  //if shadow map sample 1 is further to sun than sample => no shadow (hit front face)
+  if(shadow_map_depth1 >= screen_pos.z) return vec3(1.0);
 
-  if(shadow_no_transparent == 0.0) return vec3(0.0); //normal shadow
+  //here we already know we have a shadow hit on all geometry
 
-  vec4 shadowColor = texture2D(SHADOW_COLOR, shadow_map_screen.xy);
-  return vec3(1.0) * (1.0 - shadowColor.a); //disabled colored shadows for now
+  float shadow_map_depth2 = texture2D(SHADOWS_TRANSPARANT, screen_pos.xy).r;
+
+  //if shadow map sample 2 is closer to sun than sample => we hit opaque geometry (full shadow)
+  if(shadow_map_depth2 < screen_pos.z) return vec3(0.0);
+
+  //if we didnt hit opaque geometry then that means we hit transparent geometry - calculate shadow value from color transparency
+  vec4 shadowColor = texture2D(SHADOW_COLOR, screen_pos.xy);
+  return vec3(1.0) * (1.0 - shadowColor.a);
 }
 
 
-vec3 get_shadow_box_blur(vec3 fragcords, vec2 noise_sample_uv, vec3 view_normal){
+vec3 get_shadow_box_blur(vec3 screen_pos, vec2 noise_sample_uv, vec3 view_normal){
 
-  vec4 center_shadow_map_clip_pos = get_shadow_map_clip_hom_position_biased(fragcords, view_normal);
+  vec4 center_shadow_map_clip_pos = get_shadow_map_clip_hom_position_biased(screen_pos, view_normal);
 
-  float noise = texture2D(noisetex, noise_sample_uv * SHADOW_NOISE_REPEAT_MULTIPLIER).r; 
+
+  ivec2 screen_coord = ivec2(screen_pos.xy * vec2(viewWidth, viewHeight));
+  ivec2 noise_coord = screen_coord % 128;
+
+  float noise = texelFetch(noisetex, noise_coord, 0).r; 
   float theta = noise * radians(360.0);
   float cosTheta = cos(theta);
   float sinTheta = sin(theta);
@@ -65,10 +72,12 @@ vec3 get_shadow_box_blur(vec3 fragcords, vec2 noise_sample_uv, vec3 view_normal)
 
       vec2 offset = rotation * vec2(x, y) / shadowMapResolution;
       vec4 shadow_clip = center_shadow_map_clip_pos + vec4(offset, 0.0, 0.0);
-      vec3 shadow_clip_div = shadow_clip.xyz / shadow_clip.w;
-      vec3 dsp = distort_shadow_clip_pos(shadow_clip_div) * 0.5 + 0.5;
 
-      shadow_sum += get_shadow(dsp);
+      shadow_clip.xyz = distort_shadow_clip_pos(shadow_clip.xyz);
+
+      vec3 shadow_clip_div = shadow_clip.xyz / shadow_clip.w;
+
+      shadow_sum += get_shadow(shadow_clip_div * 0.5 + 0.5);
       samples++;
     }
   }

@@ -3,8 +3,9 @@
 float calculate_mip_level(vec2 uvs){
     vec2 dx = dFdx(uvs * vec2(MIPMAP_TILE_RESOLUTION));
     vec2 dy = dFdy(uvs * vec2(MIPMAP_TILE_RESOLUTION));
-    float d = max(dot(dx, dx), dot(dy, dy));
-    return clamp((DERIVATIVE_MIPMAP_CALC_MULTIPLIER * log2(d)) / MAX_MIP, 0.0, 1.0);
+    float d_sqared = max(dot(dx, dx), dot(dy, dy));
+    float m = log2(d_sqared);
+    return clamp((DERIVATIVE_MIPMAP_CALC_MULTIPLIER * m) / MAX_MIP, 0.0, 1.0);
 }
 #endif
 

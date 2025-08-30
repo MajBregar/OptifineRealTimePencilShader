@@ -10,7 +10,5 @@ void main() {
 
     vec3 screen_color = texture2D(ALBEDO_BUFFER, TexCoords).rgb;
 
-    vec2 uvs = texture2D(TANGENT_SPACE_UVS, TexCoords).rg;
-
-    gl_FragColor = vec4(uvs, 0.0, 1.0);
+    gl_FragColor = vec4(screen_color, 1.0);
 }

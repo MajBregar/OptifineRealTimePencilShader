@@ -8,6 +8,6 @@ varying vec2 TexCoords;
 varying vec4 Color;
 
 void main() {
-  vec4 color = texture2D(gtexture, TexCoords);
+  vec4 color = texture2D(gtexture, TexCoords) * Color;
   gl_FragData[0] = color;
 }

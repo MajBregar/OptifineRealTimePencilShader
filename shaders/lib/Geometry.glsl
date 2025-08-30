@@ -60,7 +60,6 @@ vec2 rotate_and_mirror_uv(vec2 uv, float ang_rad){
 
 
 
-
 vec2 get_skybox_uv(vec3 screen_fragcoords){
 
     vec2 screen_uv = screen_fragcoords.xy / vec2(viewWidth, viewHeight);
@@ -70,45 +69,56 @@ vec2 get_skybox_uv(vec3 screen_fragcoords){
     float fx_inv = gbufferProjectionInverse[0][0];
     float fy_inv = gbufferProjectionInverse[1][1];
 
-    vec3 ray = normalize(vec3(
+    vec3 ray = vec3(
         NDC.x * fx_inv,
         NDC.y * fy_inv,
         -1.0
-    ));
+    );
 
-    vec3 ray_world = normalize((gbufferModelViewInverse * vec4(ray, 0.0)).xyz);
-
-    vec3 cubemap_center = SKY_CUBEMAP_DIST * floor(cameraPosition / SKY_CUBEMAP_DIST + 0.5);
+    vec3 ray_world = mat3(gbufferModelViewInverse) * ray.xyz;
 
     //2 y planes
-    for (int dir = -1; dir <= 1; dir += 2) {
-        if (abs(ray_world.y) <= 0.0001) continue;
+    if (abs(ray_world.y) > 0.0001) {
+        
+        vec3 hit = ray_world / ray_world.y;
 
-        float t = (SKY_CUBEMAP_DIST * dir) / ray_world.y;
-        vec3 hit = cubemap_center + ray_world * t;
+        if (abs(hit.x) <= 1.0 && abs(hit.z) <= 1.0){
 
-        if (abs(hit.x - cubemap_center.x) <= SKY_CUBEMAP_DIST && abs(hit.z - cubemap_center.z) <= SKY_CUBEMAP_DIST) return fract(hit.xz * SKY_CUBEMAP_TILE_SIZE);
+            vec2 local = vec2(hit.x, hit.z);
+            vec2 uv = fract((local * 0.5 + 0.5) * SKY_CUBEMAP_TILE_SIZE);
+
+            return uv;
+        } 
     }
 
     //2 z planes
-    for (int dir = -1; dir <= 1; dir += 2) {
-        if (abs(ray_world.z) <= 0.0001) continue;
+    if (abs(ray_world.z) > 0.0001) {
 
-        float t = (SKY_CUBEMAP_DIST * dir) / ray_world.z;
-        vec3 hit = cubemap_center + ray_world * t;
+        vec3 hit = ray_world / ray_world.z;
 
-        if (abs(hit.x - cubemap_center.x) <= SKY_CUBEMAP_DIST && abs(hit.y - cubemap_center.y) <= SKY_CUBEMAP_DIST) return fract(hit.xy * SKY_CUBEMAP_TILE_SIZE);
+        if (abs(hit.x) <= 1.0 && abs(hit.y) <= 1.0){
+
+            vec2 local = vec2(hit.x, hit.y);
+            vec2 uv = fract((local * 0.5 + 0.5) * SKY_CUBEMAP_TILE_SIZE);
+
+            return uv;
+        } 
     }
 
     //2 x planes
-    for (int dir = -1; dir <= 1; dir += 2) {
-        if (abs(ray_world.x) <= 0.0001) continue;
+    if (abs(ray_world.x) > 0.0001) {
 
-        float t = (SKY_CUBEMAP_DIST * dir) / ray_world.x;
-        vec3 hit = cubemap_center + ray_world * t;
+        vec3 hit = ray_world / ray_world.x;
 
-        if (abs(hit.y - cubemap_center.y) <= SKY_CUBEMAP_DIST && abs(hit.z - cubemap_center.z) <= SKY_CUBEMAP_DIST) return fract(hit.zy * SKY_CUBEMAP_TILE_SIZE);
+        if (abs(hit.y) <= 1.0 && abs(hit.z) <= 1.0){
+
+            vec2 local = vec2(hit.z, hit.y);
+            vec2 uv = fract((local * 0.5 + 0.5) * SKY_CUBEMAP_TILE_SIZE);
+
+            return uv;
+        } 
     }
+
 
     return vec2(0.0);
 }
