@@ -50,6 +50,8 @@ option.NORMAL_MAP_COEF=Normal Map Blending
 option.NORMAL_MAP_COEF.comment=How much color pencil strokes leave when interracting with the normal map.
 
 
+
+
 option.SHADOW_QUALITY=Shadow Quality
 option.SHADOW_QUALITY.comment=Amount of times shadows are sampled. Higher values require more work.
 
@@ -65,7 +67,8 @@ option.SUN_BRIGHTNESS.comment=How much the sunlight contributes to lighting calc
 option.MINIMUM_SKY_BRIGHTNESS=Min Sky Brightness
 option.MINIMUM_SKY_BRIGHTNESS.comment=Minimum brightness level of the sky.
 
-
+option.CONTRAST=Perceptual Contrast
+option.CONTRAST.comment=Subtracted brightness difference between pixel brightness and screen brightness.
 
 
 option.ALBEDO_BLEND=Default Color Blend
